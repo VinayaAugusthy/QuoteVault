@@ -5,6 +5,8 @@ class AppStrings {
   static const String createAccount = 'Create Account';
   static const String createAccountDescription =
       'Join QuoteVault to start your personal collection of wisdom.';
+  static const String fullName = 'Full Name';
+  static const String fullNamePlaceholder = 'Enter your full name';
   static const String emailAddress = 'Email Address';
   static const String emailPlaceholder = 'name@example.com';
   static const String password = 'Password';
@@ -26,6 +28,7 @@ class AppStrings {
   static const String dontHaveAccount = "Don't have an account?";
   static const String joinQuoteVault = 'Join QuoteVault';
   static const String passwordPlaceholderLogin = 'Enter your password';
+  static const String logout = 'Logout';
 
   // App name
   static const String appName = 'QuoteVault';

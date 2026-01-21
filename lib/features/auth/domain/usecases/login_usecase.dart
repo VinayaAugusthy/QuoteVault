@@ -1,4 +1,12 @@
-// Login use case
+import '../entities/user.dart';
+import '../repositories/auth_repository.dart';
+
 class LoginUseCase {
-  // Add your login use case here
+  final AuthRepository repository;
+
+  LoginUseCase(this.repository);
+
+  Future<User> call({required String email, required String password}) async {
+    return await repository.signIn(email: email, password: password);
+  }
 }

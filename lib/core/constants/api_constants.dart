@@ -1,4 +1,7 @@
-// API-related constants
 class ApiConstants {
-  // Add your API constants here
+  ApiConstants._();
+
+  static const String supabaseUrl = 'https://ppgnalwprjsvayqnrrps.supabase.co';
+  static const String supabaseAnonKey =
+      'sb_publishable_FZ5-gGVfmqrxlQVJDVBadA_m1fWDTsQ';
 }
