@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-// TODO: Add flutter_bloc dependency
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'features/auth/presentation/bloc/auth_bloc.dart';
-// import 'features/quotes/presentation/bloc/quote_bloc.dart';
-// import 'features/favorites/presentation/bloc/favorite_bloc.dart';
-// import 'features/collections/presentation/bloc/collection_bloc.dart';
-// import 'features/settings/presentation/bloc/settings_bloc.dart';
+import 'core/constants/route_constants.dart';
+import 'features/auth/presentation/pages/forgot_password_page.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
 import 'features/quotes/presentation/pages/quotes_list_page.dart';
 
 class QuoteVaultApp extends StatelessWidget {
@@ -19,7 +16,13 @@ class QuoteVaultApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const QuotesListPage(),
+      initialRoute: RouteConstants.login,
+      routes: {
+        RouteConstants.login: (context) => const LoginPage(),
+        RouteConstants.register: (context) => const RegisterPage(),
+        RouteConstants.forgotPassword: (context) => const ForgotPasswordPage(),
+        RouteConstants.quotesList: (context) => const QuotesListPage(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

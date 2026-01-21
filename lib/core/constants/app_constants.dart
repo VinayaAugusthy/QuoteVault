@@ -1,4 +1,3 @@
-// App-wide constants
 class AppConstants {
-  // Add your constants here
+  AppConstants._(); // Private constructor to prevent instantiation
 }
