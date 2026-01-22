@@ -54,5 +54,9 @@
 	</array>
 	</dict>
 	</array>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allow Quote Vault to save quote cards to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow Quote Vault to access your photo library for saving quote cards.</string>
 </dict>
 </plist>

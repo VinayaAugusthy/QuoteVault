@@ -7,6 +7,7 @@ import 'package:quote_vault/core/utils/snackbar_utils.dart';
 import '../../domain/entities/quote.dart';
 import 'package:quote_vault/features/collections/presentation/widgets/add_to_collection_bottom_sheet.dart';
 import 'package:quote_vault/features/collections/presentation/bloc/collections_bloc.dart';
+import 'package:quote_vault/features/quotes/presentation/widgets/share_quote_bottom_sheet.dart';
 
 class QuoteCard extends StatelessWidget {
   final Quote quote;
@@ -163,7 +164,7 @@ class QuoteCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => ShareQuoteBottomSheet.show(context, quote),
                     icon: const Icon(
                       Icons.share,
                       color: AppColors.iconGrey,

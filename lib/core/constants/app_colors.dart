@@ -18,10 +18,21 @@ class AppColors {
 
   static const Color favoriteRed = Color(0xFFFF5252);
   static const Color errorRed = Color(0xFFFF5252);
+  static const Color successGreen = Color(0xFF2E7D32);
 
   static const Color shadowBlack = Color(0xFF000000);
   static const Color transparent = Color(0x00000000);
   static const Color white54 = Color(0x89FFFFFF);
+
+  // Quote card template colors
+  static const Color quoteCardGradientStart = primaryTeal;
+  static const Color quoteCardGradientEnd = Color(0xFF556270);
+  static const Color quoteCardBorderedBackground = Color(0xFFFFFBF5);
+
+  static const Color quoteCardMinimalDarkBackground = Color(0xFF0F172A);
+  static const Color quoteCardMinimalDarkBorder = Color(0xFF334155);
+  static const Color quoteCardMinimalDarkText = Color(0xFFE2E8F0);
+  static const Color quoteCardMinimalDarkSubtext = Color(0xFF94A3B8);
 
   // Shimmer skeleton colors
   static const Color shimmerBase = Color(0xFFE9ECEF);

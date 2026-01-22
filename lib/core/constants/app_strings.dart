@@ -1,5 +1,5 @@
 class AppStrings {
-  AppStrings._(); // Private constructor to prevent instantiation
+  AppStrings._();
 
   // Auth strings
   static const String createAccount = 'Create Account';
@@ -62,6 +62,22 @@ class AppStrings {
   static const String dailyAuthorFallback = 'QuoteVault Daily';
   static const String quoteCopiedToClipboard = 'Quote copied to clipboard';
   static const String share = 'Share';
+  static const String shareSubject = 'Quote';
+  static const String shareModeText = 'Text';
+  static const String shareModeImage = 'Image';
+  static const String shareTextButton = 'Share Text';
+  static const String shareImageButton = 'Share Image';
+  static const String saveImageButton = 'Save';
+  static const String shareStyleLabel = 'Style';
+  static const String shareSuccess = 'Quote shared successfully';
+  static const String saveSuccess = 'Saved to gallery';
+  static const String permissionDeniedMessage =
+      'Permission denied. Please allow Photos/Storage permission in Settings and try again.';
+  static const String saveFailedMessage = 'Could not save image to gallery.';
+
+  static const String quoteStyleGradient = 'Gradient';
+  static const String quoteStyleBordered = 'Bordered';
+  static const String quoteStyleMinimal = 'Minimal';
   static const String favorited = 'Favorited';
   static const String addToFavorites = 'Add to favorites';
   static const String searchHint = 'Search for authors or words';

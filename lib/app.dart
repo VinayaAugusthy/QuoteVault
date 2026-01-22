@@ -11,6 +11,7 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/reset_password_page.dart';
 import 'core/navigation/main_navigation_page.dart';
+import 'core/constants/app_colors.dart';
 
 class QuoteVaultApp extends StatefulWidget {
   const QuoteVaultApp({super.key});
@@ -92,7 +93,7 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
                 title: 'QuoteVault',
                 theme: ThemeData(
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: Colors.deepPurple,
+                    seedColor: AppColors.primaryTeal,
                   ),
                   useMaterial3: true,
                 ),

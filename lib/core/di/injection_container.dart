@@ -21,7 +21,9 @@ import '../../features/collections/domain/usecases/get_collections_usecase.dart'
 import '../../features/collections/presentation/bloc/collections_bloc.dart';
 import '../../features/quotes/data/datasources/quote_remote_datasource.dart';
 import '../../features/quotes/data/repositories/quote_repository_impl.dart';
+import '../../features/quotes/data/repositories/quote_share_repository_impl.dart';
 import '../../features/quotes/domain/repositories/quote_repository.dart';
+import '../../features/quotes/domain/repositories/quote_share_repository.dart';
 import '../../features/quotes/domain/usecases/get_categories_usecase.dart';
 import '../../features/quotes/domain/usecases/get_daily_quote_usecase.dart';
 import '../../features/quotes/domain/usecases/get_favorite_quote_ids_usecase.dart';
@@ -52,6 +54,8 @@ class InjectionContainer {
 
   QuoteRepository get quoteRepository =>
       QuoteRepositoryImpl(remoteDataSource: quoteRemoteDataSource);
+
+  QuoteShareRepository get quoteShareRepository => QuoteShareRepositoryImpl();
 
   // Use Cases
   LoginUseCase get loginUseCase => LoginUseCase(authRepository);
