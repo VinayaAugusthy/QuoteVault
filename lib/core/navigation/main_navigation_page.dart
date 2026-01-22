@@ -4,6 +4,7 @@ import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/di/injection_container.dart';
 import 'package:quote_vault/core/navigation/persistent_bottom_nav_bar.dart';
 import 'package:quote_vault/features/collections/presentation/pages/collections_page.dart';
+import 'package:quote_vault/features/collections/presentation/bloc/collections_bloc.dart';
 import 'package:quote_vault/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:quote_vault/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
@@ -50,6 +51,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           create: (_) =>
               InjectionContainer().favoritesBloc(userId: widget.userId),
         ),
+        BlocProvider<CollectionsBloc>(
+          create: (_) =>
+              InjectionContainer().collectionsBloc(userId: widget.userId),
+        ),
       ],
       child: Builder(
         builder: (innerContext) {
@@ -71,6 +76,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 if (index == 1) {
                   innerContext.read<FavoritesBloc>().add(
                     const FavoritesRequested(),
+                  );
+                } else if (index == 2) {
+                  innerContext.read<CollectionsBloc>().add(
+                    const CollectionsRequested(),
                   );
                 }
               },

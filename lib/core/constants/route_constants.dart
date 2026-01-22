@@ -16,7 +16,6 @@ class RouteConstants {
 
   // Collections routes
   static const String collections = '/collections';
-  static const String createCollection = '/collections/create';
 
   // Settings routes
   static const String settings = '/settings';

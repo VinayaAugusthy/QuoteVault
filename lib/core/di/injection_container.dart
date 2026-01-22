@@ -12,6 +12,13 @@ import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/update_password_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
+import '../../features/collections/data/datasources/collection_remote_datasource.dart';
+import '../../features/collections/data/repositories/collection_repository_impl.dart';
+import '../../features/collections/domain/repositories/collection_repository.dart';
+import '../../features/collections/domain/usecases/add_quote_to_collection_usecase.dart';
+import '../../features/collections/domain/usecases/create_collection_usecase.dart';
+import '../../features/collections/domain/usecases/get_collections_usecase.dart';
+import '../../features/collections/presentation/bloc/collections_bloc.dart';
 import '../../features/quotes/data/datasources/quote_remote_datasource.dart';
 import '../../features/quotes/data/repositories/quote_repository_impl.dart';
 import '../../features/quotes/domain/repositories/quote_repository.dart';
@@ -19,6 +26,7 @@ import '../../features/quotes/domain/usecases/get_categories_usecase.dart';
 import '../../features/quotes/domain/usecases/get_daily_quote_usecase.dart';
 import '../../features/quotes/domain/usecases/get_favorite_quote_ids_usecase.dart';
 import '../../features/quotes/domain/usecases/get_favorite_quotes_usecase.dart';
+import '../../features/quotes/domain/usecases/get_quotes_by_ids_usecase.dart';
 import '../../features/quotes/domain/usecases/get_quotes_usecase.dart';
 import '../../features/quotes/domain/usecases/toggle_favorite_usecase.dart';
 import '../../features/quotes/presentation/bloc/quotes_bloc.dart';
@@ -70,6 +78,25 @@ class InjectionContainer {
   ToggleFavoriteUseCase get toggleFavoriteUseCase =>
       ToggleFavoriteUseCase(quoteRepository);
 
+  GetQuotesByIdsUseCase get getQuotesByIdsUseCase =>
+      GetQuotesByIdsUseCase(quoteRepository);
+
+  // Collections
+  CollectionRemoteDataSource get collectionRemoteDataSource =>
+      CollectionRemoteDataSourceImpl(supabaseClient: supabaseClient);
+
+  CollectionRepository get collectionRepository =>
+      CollectionRepositoryImpl(remoteDataSource: collectionRemoteDataSource);
+
+  GetCollectionsUseCase get getCollectionsUseCase =>
+      GetCollectionsUseCase(collectionRepository);
+
+  CreateCollectionUseCase get createCollectionUseCase =>
+      CreateCollectionUseCase(collectionRepository);
+
+  AddQuoteToCollectionUseCase get addQuoteToCollectionUseCase =>
+      AddQuoteToCollectionUseCase(collectionRepository);
+
   // BLoCs
   AuthBloc get authBloc => AuthBloc(
     loginUseCase: loginUseCase,
@@ -93,6 +120,14 @@ class InjectionContainer {
   FavoritesBloc favoritesBloc({required String userId}) => FavoritesBloc(
     getFavoriteQuotesUseCase: getFavoriteQuotesUseCase,
     toggleFavoriteUseCase: toggleFavoriteUseCase,
+    userId: userId,
+  );
+
+  CollectionsBloc collectionsBloc({required String userId}) => CollectionsBloc(
+    getCollectionsUseCase: getCollectionsUseCase,
+    createCollectionUseCase: createCollectionUseCase,
+    addQuoteToCollectionUseCase: addQuoteToCollectionUseCase,
+    getQuotesByIdsUseCase: getQuotesByIdsUseCase,
     userId: userId,
   );
 }

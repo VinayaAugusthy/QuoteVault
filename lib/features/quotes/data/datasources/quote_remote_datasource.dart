@@ -14,6 +14,8 @@ abstract class QuoteRemoteDataSource {
 
   Future<QuoteModel?> fetchDailyQuote();
 
+  Future<List<QuoteModel>> fetchQuotesByIds(List<String> quoteIds);
+
   Future<List<String>> fetchFavoriteQuoteIds(String userId);
 
   Future<List<QuoteModel>> fetchFavoriteQuotes(
@@ -114,6 +116,47 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
     final dayOffset = DateTime.now().toUtc().difference(_dailyQuoteSeed).inDays;
     final index = dayOffset % data.length;
     return QuoteModel.fromMap(data[index]);
+  }
+
+  @override
+  Future<List<QuoteModel>> fetchQuotesByIds(List<String> quoteIds) async {
+    final normalized = quoteIds
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final unique = normalized.toSet().toList(growable: false);
+    if (unique.isEmpty) return const <QuoteModel>[];
+
+    final result = await supabaseClient
+        .from('quotes')
+        .select(_columns)
+        .inFilter('id', unique);
+
+    final data = (result as List<dynamic>).cast<Map<String, dynamic>>().toList(
+      growable: false,
+    );
+
+    final byId = <String, QuoteModel>{};
+    for (final row in data) {
+      final model = QuoteModel.fromMap(row);
+      byId[model.id] = model;
+    }
+
+    // Preserve caller order where possible.
+    final ordered = <QuoteModel>[];
+    for (final id in quoteIds) {
+      final match = byId[id];
+      if (match != null) ordered.add(match);
+    }
+
+    // Add any remaining quotes not found in the caller ordering.
+    for (final entry in byId.entries) {
+      if (!ordered.any((q) => q.id == entry.key)) {
+        ordered.add(entry.value);
+      }
+    }
+
+    return ordered;
   }
 
   @override

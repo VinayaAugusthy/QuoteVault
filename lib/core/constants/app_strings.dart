@@ -69,7 +69,19 @@ class AppStrings {
       'Unable to load quotes at this time.';
   static const String noQuotesMatchSearch = 'No quotes match your search.';
 
+  // Collections
+  static const String addToCollection = 'Add to Collection';
+  static const String createNewCollection = 'Create New Collection';
+  static const String collectionName = 'Collection name';
+  static const String create = 'Create';
+  static const String creating = 'Creating...';
+  static const String yourCollections = 'Your Collections';
+  static const String noCollectionsYet = 'No collections yet.';
+  static const String noCollectionsYetCreateOne =
+      'No collections yet. Create one above.';
+  static const String noQuotesAddedYet = 'No quotes added yet';
+  static const String removedFromCollection = 'Removed from collection';
+
   // Placeholder pages (until fully implemented)
-  static const String collectionsPagePlaceholder = 'Collections Page';
   static const String settingsPagePlaceholder = 'Settings Page';
 }

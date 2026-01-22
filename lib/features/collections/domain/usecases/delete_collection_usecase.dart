@@ -1,4 +1,14 @@
-// Delete collection use case
+import '../repositories/collection_repository.dart';
+
 class DeleteCollectionUseCase {
-  // Add your delete collection use case here
+  final CollectionRepository repository;
+
+  DeleteCollectionUseCase(this.repository);
+
+  Future<void> call({required String userId, required String collectionId}) {
+    return repository.deleteCollection(
+      userId: userId,
+      collectionId: collectionId,
+    );
+  }
 }

@@ -1,4 +1,20 @@
-// Create collection use case
+import '../entities/collection.dart';
+import '../repositories/collection_repository.dart';
+
 class CreateCollectionUseCase {
-  // Add your create collection use case here
+  final CollectionRepository repository;
+
+  CreateCollectionUseCase(this.repository);
+
+  Future<Collection> call({
+    required String userId,
+    required String name,
+    String? initialQuoteId,
+  }) {
+    return repository.createCollection(
+      userId: userId,
+      name: name,
+      initialQuoteId: initialQuoteId,
+    );
+  }
 }

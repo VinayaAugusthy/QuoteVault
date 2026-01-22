@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:quote_vault/core/constants/app_colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quote_vault/core/constants/app_strings.dart';
+import 'package:quote_vault/core/utils/snackbar_utils.dart';
 
 import '../../domain/entities/quote.dart';
+import 'package:quote_vault/features/collections/presentation/widgets/add_to_collection_bottom_sheet.dart';
+import 'package:quote_vault/features/collections/presentation/bloc/collections_bloc.dart';
 
 class QuoteCard extends StatelessWidget {
   final Quote quote;
@@ -15,8 +20,60 @@ class QuoteCard extends StatelessWidget {
     required this.onFavoriteToggle,
   });
 
+  void _openAddToCollectionSheet(BuildContext context) {
+    CollectionsBloc? collectionsBloc;
+    try {
+      collectionsBloc = context.read<CollectionsBloc>();
+    } catch (_) {
+      collectionsBloc = null;
+    }
+    if (collectionsBloc == null) return;
+    final bloc = collectionsBloc;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.backgroundWhite,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => BlocProvider.value(
+        value: bloc,
+        child: AddToCollectionBottomSheet(quoteId: quote.id),
+      ),
+    );
+  }
+
+  void _removeFromAllCollections(BuildContext context) {
+    final bloc = context.read<CollectionsBloc>();
+    final currentCollectionId = bloc.state.quoteToCollectionId[quote.id];
+    final removed = currentCollectionId != null;
+    if (currentCollectionId != null) {
+      bloc.add(
+        CollectionQuoteToggled(
+          collectionId: currentCollectionId,
+          quoteId: quote.id,
+          shouldAdd: false,
+        ),
+      );
+    }
+    if (removed) {
+      SnackbarUtils.showSuccess(context, AppStrings.removedFromCollection);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isInAnyCollection = false;
+    try {
+      isInAnyCollection = context.select(
+        (CollectionsBloc bloc) =>
+            bloc.state.quoteToCollectionId.containsKey(quote.id),
+      );
+    } catch (_) {
+      isInAnyCollection = false;
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
@@ -90,10 +147,18 @@ class QuoteCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
+                    onPressed: () {
+                      if (isInAnyCollection) {
+                        _removeFromAllCollections(context);
+                      } else {
+                        _openAddToCollectionSheet(context);
+                      }
+                    },
+                    icon: Icon(
                       Icons.collections_bookmark_outlined,
-                      color: AppColors.iconGrey,
+                      color: isInAnyCollection
+                          ? AppColors.primaryTeal
+                          : AppColors.iconGrey,
                       size: 20,
                     ),
                   ),

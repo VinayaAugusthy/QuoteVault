@@ -23,6 +23,11 @@ class QuoteRepositoryImpl implements QuoteRepository {
   }
 
   @override
+  Future<List<Quote>> getQuotesByIds({required List<String> quoteIds}) {
+    return remoteDataSource.fetchQuotesByIds(quoteIds);
+  }
+
+  @override
   Future<List<String>> getCategories() {
     return remoteDataSource.fetchCategories();
   }

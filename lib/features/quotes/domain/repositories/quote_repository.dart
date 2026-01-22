@@ -8,6 +8,8 @@ abstract class QuoteRepository {
     int offset = 0,
   });
 
+  Future<List<Quote>> getQuotesByIds({required List<String> quoteIds});
+
   Future<List<String>> getCategories();
 
   Future<Quote?> getDailyQuote();

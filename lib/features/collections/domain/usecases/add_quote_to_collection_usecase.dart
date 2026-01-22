@@ -1,4 +1,21 @@
-// Add quote to collection use case
+import '../repositories/collection_repository.dart';
+
 class AddQuoteToCollectionUseCase {
-  // Add your add quote to collection use case here
+  final CollectionRepository repository;
+
+  AddQuoteToCollectionUseCase(this.repository);
+
+  Future<void> call({
+    required String userId,
+    required String collectionId,
+    required String quoteId,
+    required bool shouldAdd,
+  }) {
+    return repository.setQuoteInCollection(
+      userId: userId,
+      collectionId: collectionId,
+      quoteId: quoteId,
+      shouldAdd: shouldAdd,
+    );
+  }
 }
