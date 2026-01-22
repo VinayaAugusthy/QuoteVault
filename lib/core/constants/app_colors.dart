@@ -20,4 +20,10 @@ class AppColors {
   static const Color errorRed = Color(0xFFFF5252);
 
   static const Color shadowBlack = Color(0xFF000000);
+  static const Color transparent = Color(0x00000000);
+  static const Color white54 = Color(0x89FFFFFF);
+
+  // Shimmer skeleton colors
+  static const Color shimmerBase = Color(0xFFE9ECEF);
+  static const Color shimmerHighlight = Color(0xFFF8F9FA);
 }

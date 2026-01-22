@@ -64,7 +64,8 @@ class AppStrings {
   static const String favorited = 'Favorited';
   static const String addToFavorites = 'Add to favorites';
   static const String searchHint = 'Search for authors or words';
-  static const String unableToLoadQuotes = 'Unable to load quotes at this time.';
+  static const String unableToLoadQuotes =
+      'Unable to load quotes at this time.';
   static const String noQuotesMatchSearch = 'No quotes match your search.';
 
   // Placeholder pages (until fully implemented)

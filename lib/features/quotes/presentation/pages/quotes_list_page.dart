@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:quote_vault/core/utils/snackbar_utils.dart';
 import 'package:quote_vault/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_card.dart';
+import 'package:quote_vault/features/quotes/presentation/widgets/quote_shimmers.dart';
 
 class QuotesListPage extends StatelessWidget {
   const QuotesListPage({super.key});
@@ -16,11 +18,24 @@ class QuotesListPage extends StatelessWidget {
     context.read<AuthBloc>().add(const LogoutRequested());
   }
 
+  List<Widget> _buildHomeLoadingChildren(BuildContext context) {
+    return [
+      const QuoteOfTheDayShimmer(),
+      const SizedBox(height: 20),
+      _buildSearchBar(context),
+      const SizedBox(height: 12),
+      const CategoryChipsShimmer(),
+      const SizedBox(height: 16),
+      const QuoteCardShimmer(),
+      const QuoteCardShimmer(),
+      const QuoteCardShimmer(),
+      const QuoteCardShimmer(),
+    ];
+  }
+
   Widget _buildQuoteOfTheDayCard(BuildContext context, QuotesState state) {
     final dailyQuote = state.dailyQuote;
-    final quoteText =
-        dailyQuote?.body ??
-        AppStrings.dailyQuoteFallback;
+    final quoteText = dailyQuote?.body ?? AppStrings.dailyQuoteFallback;
     final authorText = dailyQuote?.author ?? AppStrings.dailyAuthorFallback;
     final isFavorite =
         dailyQuote != null && state.favoriteQuoteIds.contains(dailyQuote.id);
@@ -83,7 +98,7 @@ class QuotesListPage extends StatelessWidget {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.backgroundWhite,
                   side: const BorderSide(color: Colors.white54),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -96,15 +111,27 @@ class QuotesListPage extends StatelessWidget {
               if (dailyQuote != null)
                 ElevatedButton.icon(
                   onPressed: () {
+                    final currentIsFavorite = context
+                        .read<QuotesBloc>()
+                        .state
+                        .favoriteQuoteIds
+                        .contains(dailyQuote.id);
+                    final willBeFavorite = !currentIsFavorite;
+                    if (willBeFavorite) {
+                      developer.log(
+                        'Favorite selected for author: ${dailyQuote.author}',
+                        name: 'QuoteVault',
+                      );
+                    }
                     context.read<QuotesBloc>().add(
                       QuotesFavoriteToggled(
                         quoteId: dailyQuote.id,
-                        shouldAdd: !isFavorite,
+                        shouldAdd: willBeFavorite,
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.backgroundWhite,
                     foregroundColor: AppColors.primaryTeal,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -114,7 +141,9 @@ class QuotesListPage extends StatelessWidget {
                     isFavorite ? Icons.favorite : Icons.favorite_border,
                   ),
                   label: Text(
-                    isFavorite ? AppStrings.favorited : AppStrings.addToFavorites,
+                    isFavorite
+                        ? AppStrings.favorited
+                        : AppStrings.addToFavorites,
                   ),
                 ),
             ],
@@ -158,13 +187,18 @@ class QuotesListPage extends StatelessWidget {
             selected: isSelected,
             selectedColor: AppColors.primaryTeal,
             backgroundColor: AppColors.backgroundWhite,
+            checkmarkColor: AppColors.backgroundWhite,
             labelStyle: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected
+                  ? AppColors.backgroundWhite
+                  : AppColors.textSecondary,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: isSelected ? Colors.transparent : AppColors.borderGrey,
+                color: isSelected
+                    ? AppColors.transparent
+                    : AppColors.borderGrey,
               ),
             ),
             onSelected: (_) {
@@ -220,79 +254,122 @@ class QuotesListPage extends StatelessWidget {
           ],
         ),
         body: BlocConsumer<QuotesBloc, QuotesState>(
+          listenWhen: (previous, current) =>
+              previous.errorMessage != current.errorMessage &&
+              current.errorMessage != null,
           listener: (context, state) {
-            if (state.status == QuotesStatus.failure &&
-                state.errorMessage != null) {
-              SnackbarUtils.showError(context, state.errorMessage!);
-            }
+            developer.log(state.errorMessage!, name: 'QuoteVault');
+            SnackbarUtils.showError(context, state.errorMessage!);
           },
           builder: (context, state) {
             final isInitialLoading =
                 state.status == QuotesStatus.loading && !state.isRefreshing;
             return RefreshIndicator(
               onRefresh: () async {
-                context.read<QuotesBloc>().add(const QuotesRefreshRequested());
+                final bloc = context.read<QuotesBloc>();
+                bloc.add(const QuotesRefreshRequested());
+                await bloc.stream.firstWhere((s) => !s.isRefreshing);
               },
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                children: [
-                  _buildQuoteOfTheDayCard(context, state),
-                  const SizedBox(height: 20),
-                  _buildSearchBar(context),
-                  const SizedBox(height: 12),
-                  _buildCategoryChips(context, state),
-                  const SizedBox(height: 16),
-                  if (isInitialLoading) ...[
-                    const Center(child: CircularProgressIndicator()),
-                    const SizedBox(height: 16),
-                  ],
-                  if (!isInitialLoading &&
-                      state.status == QuotesStatus.failure) ...[
-                    const Center(
-                      child: Text(
-                        AppStrings.unableToLoadQuotes,
-                        style: TextStyle(color: AppColors.errorRed),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  if (!isInitialLoading &&
-                      state.status == QuotesStatus.success &&
-                      state.quotes.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 32),
-                      child: Center(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.pixels >=
+                      notification.metrics.maxScrollExtent - 320) {
+                    context.read<QuotesBloc>().add(
+                      const QuotesLoadMoreRequested(),
+                    );
+                  }
+                  return false;
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  children: [
+                    if (isInitialLoading)
+                      ..._buildHomeLoadingChildren(context)
+                    else ...[
+                      _buildQuoteOfTheDayCard(context, state),
+                      const SizedBox(height: 20),
+                      _buildSearchBar(context),
+                      const SizedBox(height: 12),
+                      _buildCategoryChips(context, state),
+                      const SizedBox(height: 16),
+                    ],
+                    if (!isInitialLoading &&
+                        state.status == QuotesStatus.failure) ...[
+                      const Center(
                         child: Text(
-                          AppStrings.noQuotesMatchSearch,
+                          AppStrings.unableToLoadQuotes,
+                          style: TextStyle(color: AppColors.errorRed),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (!isInitialLoading &&
+                        state.status == QuotesStatus.success &&
+                        state.quotes.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 32),
+                        child: Center(
+                          child: Text(
+                            AppStrings.noQuotesMatchSearch,
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ),
+                    if (!isInitialLoading &&
+                        state.status == QuotesStatus.success &&
+                        state.quotes.isNotEmpty)
+                      ...state.quotes.map((quote) {
+                        final isFavorite = state.favoriteQuoteIds.contains(
+                          quote.id,
+                        );
+                        return QuoteCard(
+                          key: ValueKey('quote_${quote.id}_$isFavorite'),
+                          quote: quote,
+                          isFavorite: isFavorite,
+                          onFavoriteToggle: () {
+                            final currentIsFavorite = context
+                                .read<QuotesBloc>()
+                                .state
+                                .favoriteQuoteIds
+                                .contains(quote.id);
+                            final willBeFavorite = !currentIsFavorite;
+                            if (willBeFavorite) {
+                              developer.log(
+                                'Favorite selected for author: ${quote.author}',
+                                name: 'QuoteVault',
+                              );
+                            }
+                            context.read<QuotesBloc>().add(
+                              QuotesFavoriteToggled(
+                                quoteId: quote.id,
+                                shouldAdd: willBeFavorite,
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                    if (state.isLoadingMore) ...[
+                      const SizedBox(height: 12),
+                      const Center(child: CircularProgressIndicator()),
+                      const SizedBox(height: 16),
+                    ] else if (!state.hasMore &&
+                        state.status == QuotesStatus.success &&
+                        state.quotes.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      const Center(
+                        child: Text(
+                          'You reached the end.',
                           style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
-                    ),
-                  if (!isInitialLoading &&
-                      state.status == QuotesStatus.success &&
-                      state.quotes.isNotEmpty)
-                    ...state.quotes.map((quote) {
-                      final isFavorite = state.favoriteQuoteIds.contains(
-                        quote.id,
-                      );
-                      return QuoteCard(
-                        quote: quote,
-                        isFavorite: isFavorite,
-                        onFavoriteToggle: () {
-                          context.read<QuotesBloc>().add(
-                            QuotesFavoriteToggled(
-                              quoteId: quote.id,
-                              shouldAdd: !isFavorite,
-                            ),
-                          );
-                        },
-                      );
-                    }),
-                ],
+                      const SizedBox(height: 16),
+                    ],
+                  ],
+                ),
               ),
             );
           },

@@ -9,8 +9,15 @@ const _categoryMap = {
   'inspiration': 'Inspiration',
   'motivational': 'Motivation',
   'motivation': 'Motivation',
+  'love': 'Love',
+  'romance': 'Love',
+  'romantic': 'Love',
   'success': 'Success',
   'wisdom': 'Wisdom',
+  'humor': 'Humor',
+  'humour': 'Humor',
+  'funny': 'Humor',
+  'comedy': 'Humor',
   'mindset': 'Mindset',
   'life': 'Life',
   'learning': 'Learning',
@@ -44,7 +51,14 @@ void main() async {
 
   stdout.writeln('Seeding ${quotes.length} quotes into Supabase...');
 
-  final payload = quotes.map(_mapToPayload).toList();
+  final rawPayload = quotes.map(_mapToPayload).toList();
+  final byExternalId = <String, Map<String, dynamic>>{};
+  for (final row in rawPayload) {
+    final externalId = row['external_id'] as String?;
+    if (externalId == null || externalId.isEmpty) continue;
+    byExternalId[externalId] = row;
+  }
+  final payload = byExternalId.values.toList();
   const batchSize = 40;
 
   for (var i = 0; i < payload.length; i += batchSize) {

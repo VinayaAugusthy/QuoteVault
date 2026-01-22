@@ -6,7 +6,17 @@ class GetQuotesUseCase {
 
   GetQuotesUseCase(this.repository);
 
-  Future<List<Quote>> call({String? category, String? searchQuery}) {
-    return repository.getQuotes(category: category, searchQuery: searchQuery);
+  Future<List<Quote>> call({
+    String? category,
+    String? searchQuery,
+    int limit = 30,
+    int offset = 0,
+  }) {
+    return repository.getQuotes(
+      category: category,
+      searchQuery: searchQuery,
+      limit: limit,
+      offset: offset,
+    );
   }
 }

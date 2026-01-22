@@ -1,15 +1,27 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/auth/domain/usecases/login_usecase.dart';
-import '../../features/auth/domain/usecases/register_usecase.dart';
-import '../../features/auth/domain/usecases/logout_usecase.dart';
+import '../../features/auth/domain/usecases/exchange_code_for_session_usecase.dart';
 import '../../features/auth/domain/usecases/forgot_password_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/login_usecase.dart';
+import '../../features/auth/domain/usecases/logout_usecase.dart';
+import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/update_password_usecase.dart';
-import '../../features/auth/domain/usecases/exchange_code_for_session_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
+import '../../features/quotes/data/datasources/quote_remote_datasource.dart';
+import '../../features/quotes/data/repositories/quote_repository_impl.dart';
+import '../../features/quotes/domain/repositories/quote_repository.dart';
+import '../../features/quotes/domain/usecases/get_categories_usecase.dart';
+import '../../features/quotes/domain/usecases/get_daily_quote_usecase.dart';
+import '../../features/quotes/domain/usecases/get_favorite_quote_ids_usecase.dart';
+import '../../features/quotes/domain/usecases/get_favorite_quotes_usecase.dart';
+import '../../features/quotes/domain/usecases/get_quotes_usecase.dart';
+import '../../features/quotes/domain/usecases/toggle_favorite_usecase.dart';
+import '../../features/quotes/presentation/bloc/quotes_bloc.dart';
 
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -27,6 +39,12 @@ class InjectionContainer {
   AuthRepository get authRepository =>
       AuthRepositoryImpl(remoteDataSource: authRemoteDataSource);
 
+  QuoteRemoteDataSource get quoteRemoteDataSource =>
+      QuoteRemoteDataSourceImpl(supabaseClient: supabaseClient);
+
+  QuoteRepository get quoteRepository =>
+      QuoteRepositoryImpl(remoteDataSource: quoteRemoteDataSource);
+
   // Use Cases
   LoginUseCase get loginUseCase => LoginUseCase(authRepository);
   RegisterUseCase get registerUseCase => RegisterUseCase(authRepository);
@@ -40,6 +58,18 @@ class InjectionContainer {
   ExchangeCodeForSessionUseCase get exchangeCodeForSessionUseCase =>
       ExchangeCodeForSessionUseCase(authRepository);
 
+  GetQuotesUseCase get getQuotesUseCase => GetQuotesUseCase(quoteRepository);
+  GetCategoriesUseCase get getCategoriesUseCase =>
+      GetCategoriesUseCase(quoteRepository);
+  GetDailyQuoteUseCase get getDailyQuoteUseCase =>
+      GetDailyQuoteUseCase(quoteRepository);
+  GetFavoriteQuoteIdsUseCase get getFavoriteQuoteIdsUseCase =>
+      GetFavoriteQuoteIdsUseCase(quoteRepository);
+  GetFavoriteQuotesUseCase get getFavoriteQuotesUseCase =>
+      GetFavoriteQuotesUseCase(quoteRepository);
+  ToggleFavoriteUseCase get toggleFavoriteUseCase =>
+      ToggleFavoriteUseCase(quoteRepository);
+
   // BLoCs
   AuthBloc get authBloc => AuthBloc(
     loginUseCase: loginUseCase,
@@ -49,5 +79,20 @@ class InjectionContainer {
     getCurrentUserUseCase: getCurrentUserUseCase,
     updatePasswordUseCase: updatePasswordUseCase,
     exchangeCodeForSessionUseCase: exchangeCodeForSessionUseCase,
+  );
+
+  QuotesBloc quotesBloc({required String userId}) => QuotesBloc(
+    getQuotesUseCase: getQuotesUseCase,
+    getCategoriesUseCase: getCategoriesUseCase,
+    getDailyQuoteUseCase: getDailyQuoteUseCase,
+    getFavoriteQuoteIdsUseCase: getFavoriteQuoteIdsUseCase,
+    toggleFavoriteUseCase: toggleFavoriteUseCase,
+    userId: userId,
+  );
+
+  FavoritesBloc favoritesBloc({required String userId}) => FavoritesBloc(
+    getFavoriteQuotesUseCase: getFavoriteQuotesUseCase,
+    toggleFavoriteUseCase: toggleFavoriteUseCase,
+    userId: userId,
   );
 }
