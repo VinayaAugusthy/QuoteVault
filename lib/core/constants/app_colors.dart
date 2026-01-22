@@ -15,4 +15,9 @@ class AppColors {
   static const Color iconGrey = Color(0xFF95A5A6);
 
   static const Color borderGrey = Color(0xFFE0E0E0);
+
+  static const Color favoriteRed = Color(0xFFFF5252);
+  static const Color errorRed = Color(0xFFFF5252);
+
+  static const Color shadowBlack = Color(0xFF000000);
 }

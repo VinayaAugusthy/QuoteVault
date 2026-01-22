@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_links/app_links.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'core/constants/route_constants.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/deep_link_service.dart';
@@ -9,7 +10,7 @@ import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/reset_password_page.dart';
-import 'features/quotes/presentation/pages/quotes_list_page.dart';
+import 'core/navigation/main_navigation_page.dart';
 
 class QuoteVaultApp extends StatefulWidget {
   const QuoteVaultApp({super.key});
@@ -83,7 +84,7 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               final home = state is AuthAuthenticated
-                  ? const QuotesListPage()
+                  ? MainNavigationPage(userId: state.user.id)
                   : const LoginPage();
 
               return MaterialApp(
@@ -103,8 +104,34 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
                       const ForgotPasswordPage(),
                   RouteConstants.resetPassword: (context) =>
                       const ResetPasswordPage(),
-                  RouteConstants.quotesList: (context) =>
-                      const QuotesListPage(),
+                  RouteConstants.quotesList: (context) {
+                    final user = Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      return const LoginPage();
+                    }
+                    return MainNavigationPage(userId: user.id, initialIndex: 0);
+                  },
+                  RouteConstants.favorites: (context) {
+                    final user = Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      return const LoginPage();
+                    }
+                    return MainNavigationPage(userId: user.id, initialIndex: 1);
+                  },
+                  RouteConstants.collections: (context) {
+                    final user = Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      return const LoginPage();
+                    }
+                    return MainNavigationPage(userId: user.id, initialIndex: 2);
+                  },
+                  RouteConstants.settings: (context) {
+                    final user = Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      return const LoginPage();
+                    }
+                    return MainNavigationPage(userId: user.id, initialIndex: 3);
+                  },
                 },
                 debugShowCheckedModeBanner: false,
               );

@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:quote_vault/core/constants/app_colors.dart';
+import 'package:quote_vault/core/constants/app_strings.dart';
+
+class PersistentBottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const PersistentBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.backgroundWhite,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowBlack.withValues(alpha: 0.05),
+            offset: const Offset(0, -2),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          height: 60,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                icon: Icons.home,
+                label: AppStrings.navHome,
+                index: 0,
+              ),
+              _buildNavItem(
+                icon: Icons.favorite,
+                label: AppStrings.navFavorites,
+                index: 1,
+              ),
+              _buildNavItem(
+                icon: Icons.collections_bookmark,
+                label: AppStrings.navCollections,
+                index: 2,
+              ),
+              _buildNavItem(
+                icon: Icons.settings,
+                label: AppStrings.navSettings,
+                index: 3,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
+    final isSelected = currentIndex == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => onTap(index),
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? AppColors.primaryTeal : AppColors.iconGrey,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected ? AppColors.primaryTeal : AppColors.iconGrey,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

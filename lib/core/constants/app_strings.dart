@@ -41,4 +41,33 @@ class AppStrings {
 
   // App name
   static const String appName = 'QuoteVault';
+
+  // Bottom navigation
+  static const String navHome = 'Home';
+  static const String navFavorites = 'Favorites';
+  static const String navCollections = 'Collections';
+  static const String navSettings = 'Settings';
+
+  // Common UI
+  static const String somethingWentWrong = 'Something went wrong.';
+  static const String quoteOfTheDay = 'Quote of the Day';
+
+  // Favorites
+  static const String noFavoritesYet = 'You have no favorites yet.';
+
+  // Quotes
+  static const String dailyQuoteFallback =
+      'Discover new quotes powered by Supabase every day.';
+  static const String dailyAuthorFallback = 'QuoteVault Daily';
+  static const String quoteCopiedToClipboard = 'Quote copied to clipboard';
+  static const String share = 'Share';
+  static const String favorited = 'Favorited';
+  static const String addToFavorites = 'Add to favorites';
+  static const String searchHint = 'Search for authors or words';
+  static const String unableToLoadQuotes = 'Unable to load quotes at this time.';
+  static const String noQuotesMatchSearch = 'No quotes match your search.';
+
+  // Placeholder pages (until fully implemented)
+  static const String collectionsPagePlaceholder = 'Collections Page';
+  static const String settingsPagePlaceholder = 'Settings Page';
 }
