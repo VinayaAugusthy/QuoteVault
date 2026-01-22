@@ -41,32 +41,42 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundWhite,
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider<QuotesBloc>(
-            create: (_) =>
-                InjectionContainer().quotesBloc(userId: widget.userId),
-          ),
-          BlocProvider<FavoritesBloc>(
-            create: (_) =>
-                InjectionContainer().favoritesBloc(userId: widget.userId),
-          ),
-        ],
-        child: IndexedStack(
-          index: _currentIndex,
-          children: const [
-            QuotesListPage(),
-            FavoritesPage(),
-            CollectionsPage(),
-            SettingsPage(),
-          ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<QuotesBloc>(
+          create: (_) => InjectionContainer().quotesBloc(userId: widget.userId),
         ),
-      ),
-      bottomNavigationBar: PersistentBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onIndexChanged,
+        BlocProvider<FavoritesBloc>(
+          create: (_) =>
+              InjectionContainer().favoritesBloc(userId: widget.userId),
+        ),
+      ],
+      child: Builder(
+        builder: (innerContext) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundWhite,
+            body: IndexedStack(
+              index: _currentIndex,
+              children: const [
+                QuotesListPage(),
+                FavoritesPage(),
+                CollectionsPage(),
+                SettingsPage(),
+              ],
+            ),
+            bottomNavigationBar: PersistentBottomNavBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                _onIndexChanged(index);
+                if (index == 1) {
+                  innerContext.read<FavoritesBloc>().add(
+                    const FavoritesRequested(),
+                  );
+                }
+              },
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'dart:developer' as developer;
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -258,11 +257,6 @@ class QuotesBloc extends Bloc<QuotesEvent, QuotesState> {
         shouldAdd: event.shouldAdd,
       );
     } catch (e) {
-      developer.log(
-        'Toggle favorite failed (quoteId=${event.quoteId}, shouldAdd=${event.shouldAdd}, userId=$userId): ${e.toString()}',
-        name: 'QuoteVault',
-        error: e,
-      );
       // Revert optimistic update if remote write fails.
       emit(
         state.copyWith(

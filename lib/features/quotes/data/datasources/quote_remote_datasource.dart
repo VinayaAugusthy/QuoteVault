@@ -31,6 +31,7 @@ abstract class QuoteRemoteDataSource {
 class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
   static const _columns = 'id, body, author, category, tags, created_at';
   static final _dailyQuoteSeed = DateTime.utc(2024, 1, 1);
+  static const _favoritesTable = 'user_favorites';
 
   final SupabaseClient supabaseClient;
 
@@ -118,7 +119,7 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
   @override
   Future<List<String>> fetchFavoriteQuoteIds(String userId) async {
     final result = await supabaseClient
-        .from('favorites')
+        .from(_favoritesTable)
         .select('quote_id')
         .eq('user_id', userId);
     final data = (result as List<dynamic>).cast<Map<String, dynamic>>().toList(
@@ -136,7 +137,7 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
     List<String>? quoteIds,
   }) async {
     final result = await supabaseClient
-        .from('favorites')
+        .from(_favoritesTable)
         .select('quotes (id, body, author, category, tags, created_at)')
         .eq('user_id', userId);
     final data = (result as List<dynamic>).cast<Map<String, dynamic>>().toList(
@@ -160,7 +161,7 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
     required String quoteId,
     required bool shouldAdd,
   }) async {
-    final table = supabaseClient.from('favorites');
+    final table = supabaseClient.from(_favoritesTable);
 
     if (shouldAdd) {
       await table.upsert([

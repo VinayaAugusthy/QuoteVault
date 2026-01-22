@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -29,7 +31,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     FavoritesRequested event,
     Emitter<FavoritesState> emit,
   ) async {
-    emit(state.copyWith(status: FavoritesStatus.loading, message: null));
+    emit(state.copyWith(status: FavoritesStatus.loading));
 
     try {
       final favorites = await getFavoriteQuotesUseCase.call(userId: userId);
@@ -37,8 +39,13 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
         state.copyWith(status: FavoritesStatus.success, favorites: favorites),
       );
     } catch (e) {
+      final shouldHardFail = state.favorites.isEmpty;
       emit(
-        state.copyWith(status: FavoritesStatus.failure, message: e.toString()),
+        state.copyWith(
+          status: shouldHardFail
+              ? FavoritesStatus.failure
+              : FavoritesStatus.success,
+        ),
       );
     }
   }
@@ -56,7 +63,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       add(const FavoritesRequested());
     } catch (e) {
       emit(
-        state.copyWith(status: FavoritesStatus.failure, message: e.toString()),
+        state.copyWith(
+          status: state.favorites.isEmpty
+              ? FavoritesStatus.failure
+              : FavoritesStatus.success,
+        ),
       );
     }
   }

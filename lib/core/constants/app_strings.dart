@@ -53,7 +53,8 @@ class AppStrings {
   static const String quoteOfTheDay = 'Quote of the Day';
 
   // Favorites
-  static const String noFavoritesYet = 'You have no favorites yet.';
+  static const String noFavouritesFound = 'No Favourites found';
+  static const String failedToLoadFavourites = 'Failed to load favourites';
 
   // Quotes
   static const String dailyQuoteFallback =

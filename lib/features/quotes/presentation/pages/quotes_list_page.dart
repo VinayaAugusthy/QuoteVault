@@ -1,4 +1,3 @@
-import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,12 +116,6 @@ class QuotesListPage extends StatelessWidget {
                         .favoriteQuoteIds
                         .contains(dailyQuote.id);
                     final willBeFavorite = !currentIsFavorite;
-                    if (willBeFavorite) {
-                      developer.log(
-                        'Favorite selected for author: ${dailyQuote.author}',
-                        name: 'QuoteVault',
-                      );
-                    }
                     context.read<QuotesBloc>().add(
                       QuotesFavoriteToggled(
                         quoteId: dailyQuote.id,
@@ -258,7 +251,6 @@ class QuotesListPage extends StatelessWidget {
               previous.errorMessage != current.errorMessage &&
               current.errorMessage != null,
           listener: (context, state) {
-            developer.log(state.errorMessage!, name: 'QuoteVault');
             SnackbarUtils.showError(context, state.errorMessage!);
           },
           builder: (context, state) {
@@ -337,12 +329,6 @@ class QuotesListPage extends StatelessWidget {
                                 .favoriteQuoteIds
                                 .contains(quote.id);
                             final willBeFavorite = !currentIsFavorite;
-                            if (willBeFavorite) {
-                              developer.log(
-                                'Favorite selected for author: ${quote.author}',
-                                name: 'QuoteVault',
-                              );
-                            }
                             context.read<QuotesBloc>().add(
                               QuotesFavoriteToggled(
                                 quoteId: quote.id,
