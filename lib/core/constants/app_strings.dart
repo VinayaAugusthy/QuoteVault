@@ -29,6 +29,15 @@ class AppStrings {
   static const String joinQuoteVault = 'Join QuoteVault';
   static const String passwordPlaceholderLogin = 'Enter your password';
   static const String logout = 'Logout';
+  static const String resetPassword = 'Reset Password';
+  static const String resetPasswordDescription =
+      'Enter your new password below to complete the reset process.';
+  static const String newPassword = 'New Password';
+  static const String newPasswordPlaceholder = 'Enter your new password';
+  static const String confirmNewPassword = 'Confirm New Password';
+  static const String confirmNewPasswordPlaceholder =
+      'Confirm your new password';
+  static const String resetPasswordButton = 'Reset Password';
 
   // App name
   static const String appName = 'QuoteVault';

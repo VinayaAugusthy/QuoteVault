@@ -41,3 +41,11 @@ final class AuthError extends AuthState {
 final class PasswordResetSent extends AuthState {
   const PasswordResetSent();
 }
+
+final class PasswordUpdated extends AuthState {
+  const PasswordUpdated();
+}
+
+final class CodeExchangedForSession extends AuthState {
+  const CodeExchangedForSession();
+}

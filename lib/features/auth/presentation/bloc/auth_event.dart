@@ -46,6 +46,24 @@ final class ForgotPasswordRequested extends AuthEvent {
   List<Object> get props => [email];
 }
 
+final class UpdatePasswordRequested extends AuthEvent {
+  final String newPassword;
+
+  const UpdatePasswordRequested({required this.newPassword});
+
+  @override
+  List<Object> get props => [newPassword];
+}
+
+final class ExchangeCodeForSessionRequested extends AuthEvent {
+  final String code;
+
+  const ExchangeCodeForSessionRequested({required this.code});
+
+  @override
+  List<Object> get props => [code];
+}
+
 final class CheckAuthStatus extends AuthEvent {
   const CheckAuthStatus();
 }

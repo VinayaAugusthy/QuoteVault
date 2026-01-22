@@ -7,6 +7,8 @@ import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/forgot_password_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
+import '../../features/auth/domain/usecases/update_password_usecase.dart';
+import '../../features/auth/domain/usecases/exchange_code_for_session_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
 class InjectionContainer {
@@ -33,6 +35,10 @@ class InjectionContainer {
       ForgotPasswordUseCase(authRepository);
   GetCurrentUserUseCase get getCurrentUserUseCase =>
       GetCurrentUserUseCase(authRepository);
+  UpdatePasswordUseCase get updatePasswordUseCase =>
+      UpdatePasswordUseCase(authRepository);
+  ExchangeCodeForSessionUseCase get exchangeCodeForSessionUseCase =>
+      ExchangeCodeForSessionUseCase(authRepository);
 
   // BLoCs
   AuthBloc get authBloc => AuthBloc(
@@ -41,5 +47,7 @@ class InjectionContainer {
     logoutUseCase: logoutUseCase,
     forgotPasswordUseCase: forgotPasswordUseCase,
     getCurrentUserUseCase: getCurrentUserUseCase,
+    updatePasswordUseCase: updatePasswordUseCase,
+    exchangeCodeForSessionUseCase: exchangeCodeForSessionUseCase,
   );
 }

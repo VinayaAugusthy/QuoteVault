@@ -10,6 +10,8 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> signIn({required String email, required String password});
   Future<void> signOut();
   Future<void> resetPassword({required String email});
+  Future<void> exchangeCodeForSession({required String code});
+  Future<void> updatePassword({required String newPassword});
   Future<UserModel?> getCurrentUser();
   Stream<AuthState> get authStateChanges;
 }
@@ -86,6 +88,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } catch (e) {
       throw Exception('Password reset failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> exchangeCodeForSession({required String code}) async {
+    try {
+      await supabaseClient.auth.exchangeCodeForSession(code);
+    } catch (e) {
+      throw Exception('Failed to exchange code for session: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> updatePassword({required String newPassword}) async {
+    try {
+      await supabaseClient.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    } on AuthException catch (e) {
+      final message = e.message.toLowerCase();
+      if (message.contains('session') || message.contains('token')) {
+        throw Exception(
+          'Password reset session expired or invalid. Please request a new reset link.',
+        );
+      }
+      throw Exception('Password update failed: ${e.message}');
+    } catch (e) {
+      throw Exception('Password update failed: ${e.toString()}');
     }
   }
 

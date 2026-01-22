@@ -9,6 +9,8 @@ import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/update_password_usecase.dart';
+import '../../domain/usecases/exchange_code_for_session_usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -19,6 +21,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUseCase logoutUseCase;
   final ForgotPasswordUseCase forgotPasswordUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
+  final UpdatePasswordUseCase updatePasswordUseCase;
+  final ExchangeCodeForSessionUseCase exchangeCodeForSessionUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -26,11 +30,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.logoutUseCase,
     required this.forgotPasswordUseCase,
     required this.getCurrentUserUseCase,
+    required this.updatePasswordUseCase,
+    required this.exchangeCodeForSessionUseCase,
   }) : super(const AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<ForgotPasswordRequested>(_onForgotPasswordRequested);
+    on<UpdatePasswordRequested>(_onUpdatePasswordRequested);
+    on<ExchangeCodeForSessionRequested>(_onExchangeCodeForSessionRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
   }
 
@@ -88,6 +96,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await forgotPasswordUseCase(email: event.email);
       emit(const PasswordResetSent());
+    } catch (e) {
+      emit(AuthError(e.toString().replaceAll('Exception: ', '')));
+    }
+  }
+
+  Future<void> _onUpdatePasswordRequested(
+    UpdatePasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      await updatePasswordUseCase(newPassword: event.newPassword);
+      emit(const PasswordUpdated());
+    } catch (e) {
+      emit(AuthError(e.toString().replaceAll('Exception: ', '')));
+    }
+  }
+
+  Future<void> _onExchangeCodeForSessionRequested(
+    ExchangeCodeForSessionRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      await exchangeCodeForSessionUseCase(code: event.code);
+      emit(const CodeExchangedForSession());
     } catch (e) {
       emit(AuthError(e.toString().replaceAll('Exception: ', '')));
     }

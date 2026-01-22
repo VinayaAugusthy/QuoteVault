@@ -57,6 +57,24 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> exchangeCodeForSession({required String code}) async {
+    try {
+      await remoteDataSource.exchangeCodeForSession(code: code);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<void> updatePassword({required String newPassword}) async {
+    try {
+      await remoteDataSource.updatePassword(newPassword: newPassword);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
   Future<User?> getCurrentUser() async {
     try {
       return await remoteDataSource.getCurrentUser();
