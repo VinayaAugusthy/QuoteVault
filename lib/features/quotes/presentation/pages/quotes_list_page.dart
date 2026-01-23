@@ -350,11 +350,11 @@ class _QuotesListPageState extends State<QuotesListPage> {
               }
             },
             builder: (context, state) {
-              final showInitialLoading = state.status == QuotesStatus.initial;
               final showShimmers =
-                  showInitialLoading ||
-                  state.status == QuotesStatus.loading ||
-                  state.isRefreshing;
+                  state.isRefreshing ||
+                  (state.quotes.isEmpty &&
+                      (state.status == QuotesStatus.initial ||
+                          state.status == QuotesStatus.loading));
               return RefreshIndicator(
                 onRefresh: () async {
                   final bloc = context.read<QuotesBloc>();
