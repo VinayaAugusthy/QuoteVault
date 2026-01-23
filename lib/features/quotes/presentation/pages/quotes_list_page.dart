@@ -293,123 +293,179 @@ class _QuotesListPageState extends State<QuotesListPage> {
             SnackbarUtils.showError(context, state.message);
           }
         },
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Text(
-              AppStrings.appName,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: () async {
-                    await Navigator.pushNamed(context, RouteConstants.profile);
-                    await _loadAvatar();
-                  },
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.15),
-                    backgroundImage: avatarFile != null
-                        ? FileImage(avatarFile)
-                        : null,
-                    child: avatarFile == null
-                        ? Icon(
-                            Icons.person,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        : null,
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) {
+              Navigator.of(context).pop();
+            }
+            return;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Text(
+                AppStrings.appName,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(999),
+                    onTap: () async {
+                      await Navigator.pushNamed(
+                        context,
+                        RouteConstants.profile,
+                      );
+                      await _loadAvatar();
+                    },
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
+                      backgroundImage: avatarFile != null
+                          ? FileImage(avatarFile)
+                          : null,
+                      child: avatarFile == null
+                          ? Icon(
+                              Icons.person,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : null,
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.logout,
-                  color: Theme.of(context).colorScheme.primary,
+                IconButton(
+                  icon: Icon(
+                    Icons.logout,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () => _handleLogout(context),
+                  tooltip: AppStrings.logout,
                 ),
-                onPressed: () => _handleLogout(context),
-                tooltip: AppStrings.logout,
-              ),
-            ],
-          ),
-          body: BlocConsumer<QuotesBloc, QuotesState>(
-            listenWhen: (previous, current) =>
-                (previous.errorMessage != current.errorMessage &&
-                    current.errorMessage != null) ||
-                (previous.isRefreshing &&
-                    !current.isRefreshing &&
-                    current.errorMessage == null),
-            listener: (context, state) {
-              if (state.errorMessage != null) {
-                SnackbarUtils.showError(context, state.errorMessage!);
-                return;
-              }
-            },
-            builder: (context, state) {
-              final showShimmers =
-                  state.isRefreshing ||
-                  (state.quotes.isEmpty &&
-                      (state.status == QuotesStatus.initial ||
-                          state.status == QuotesStatus.loading));
-              return RefreshIndicator(
-                onRefresh: () async {
-                  final bloc = context.read<QuotesBloc>();
-                  bloc.add(const QuotesRefreshRequested());
-                  await bloc.stream.firstWhere((s) => s.isRefreshing);
-                  await bloc.stream.firstWhere((s) => !s.isRefreshing);
-                },
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (state.isRefreshing) return false;
-                    if (notification.metrics.pixels >=
-                        notification.metrics.maxScrollExtent - 320) {
-                      context.read<QuotesBloc>().add(
-                        const QuotesLoadMoreRequested(),
-                      );
-                    }
-                    return false;
+              ],
+            ),
+            body: BlocConsumer<QuotesBloc, QuotesState>(
+              listenWhen: (previous, current) =>
+                  (previous.errorMessage != current.errorMessage &&
+                      current.errorMessage != null) ||
+                  (previous.isRefreshing &&
+                      !current.isRefreshing &&
+                      current.errorMessage == null),
+              listener: (context, state) {
+                if (state.errorMessage != null) {
+                  SnackbarUtils.showError(context, state.errorMessage!);
+                  return;
+                }
+              },
+              builder: (context, state) {
+                final showShimmers =
+                    state.isRefreshing ||
+                    (state.quotes.isEmpty &&
+                        (state.status == QuotesStatus.initial ||
+                            state.status == QuotesStatus.loading));
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    final bloc = context.read<QuotesBloc>();
+                    bloc.add(const QuotesRefreshRequested());
+                    await bloc.stream.firstWhere((s) => s.isRefreshing);
+                    await bloc.stream.firstWhere((s) => !s.isRefreshing);
                   },
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    children: [
-                      if (showShimmers)
-                        ..._buildHomeLoadingChildren()
-                      else ...[
-                        _buildQuoteOfTheDayCard(context, state),
-                        const SizedBox(height: 20),
-                        _buildSearchBar(context),
-                        const SizedBox(height: 12),
-                        _buildCategoryChips(context, state),
-                        const SizedBox(height: 16),
-                      ],
-                      if (!showShimmers &&
-                          state.status == QuotesStatus.failure) ...[
-                        Center(
-                          child: Text(
-                            AppStrings.unableToLoadQuotes,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (state.isRefreshing) return false;
+                      if (notification.metrics.pixels >=
+                          notification.metrics.maxScrollExtent - 320) {
+                        context.read<QuotesBloc>().add(
+                          const QuotesLoadMoreRequested(),
+                        );
+                      }
+                      return false;
+                    },
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      children: [
+                        if (showShimmers)
+                          ..._buildHomeLoadingChildren()
+                        else ...[
+                          _buildQuoteOfTheDayCard(context, state),
+                          const SizedBox(height: 20),
+                          _buildSearchBar(context),
+                          const SizedBox(height: 12),
+                          _buildCategoryChips(context, state),
+                          const SizedBox(height: 16),
+                        ],
+                        if (!showShimmers &&
+                            state.status == QuotesStatus.failure) ...[
+                          Center(
+                            child: Text(
+                              AppStrings.unableToLoadQuotes,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      if (!showShimmers &&
-                          state.status == QuotesStatus.success &&
-                          state.quotes.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(top: 32),
-                          child: Center(
+                          const SizedBox(height: 16),
+                        ],
+                        if (!showShimmers &&
+                            state.status == QuotesStatus.success &&
+                            state.quotes.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(top: 32),
+                            child: Center(
+                              child: Text(
+                                AppStrings.noQuotesMatchSearch,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (!showShimmers &&
+                            state.status == QuotesStatus.success &&
+                            state.quotes.isNotEmpty)
+                          ...state.quotes.map((quote) {
+                            final isFavorite = state.favoriteQuoteIds.contains(
+                              quote.id,
+                            );
+                            return QuoteCard(
+                              key: ValueKey('quote_${quote.id}_$isFavorite'),
+                              quote: quote,
+                              isFavorite: isFavorite,
+                              onFavoriteToggle: () {
+                                final currentIsFavorite = context
+                                    .read<QuotesBloc>()
+                                    .state
+                                    .favoriteQuoteIds
+                                    .contains(quote.id);
+                                final willBeFavorite = !currentIsFavorite;
+                                context.read<QuotesBloc>().add(
+                                  QuotesFavoriteToggled(
+                                    quoteId: quote.id,
+                                    shouldAdd: willBeFavorite,
+                                  ),
+                                );
+                              },
+                            );
+                          }),
+                        if (state.isLoadingMore) ...[
+                          const SizedBox(height: 12),
+                          const Center(child: CircularProgressIndicator()),
+                          const SizedBox(height: 16),
+                        ] else if (!state.hasMore &&
+                            state.status == QuotesStatus.success &&
+                            state.quotes.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Center(
                             child: Text(
-                              AppStrings.noQuotesMatchSearch,
+                              AppStrings.youReachedTheEnd,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
@@ -417,59 +473,14 @@ class _QuotesListPageState extends State<QuotesListPage> {
                               ),
                             ),
                           ),
-                        ),
-                      if (!showShimmers &&
-                          state.status == QuotesStatus.success &&
-                          state.quotes.isNotEmpty)
-                        ...state.quotes.map((quote) {
-                          final isFavorite = state.favoriteQuoteIds.contains(
-                            quote.id,
-                          );
-                          return QuoteCard(
-                            key: ValueKey('quote_${quote.id}_$isFavorite'),
-                            quote: quote,
-                            isFavorite: isFavorite,
-                            onFavoriteToggle: () {
-                              final currentIsFavorite = context
-                                  .read<QuotesBloc>()
-                                  .state
-                                  .favoriteQuoteIds
-                                  .contains(quote.id);
-                              final willBeFavorite = !currentIsFavorite;
-                              context.read<QuotesBloc>().add(
-                                QuotesFavoriteToggled(
-                                  quoteId: quote.id,
-                                  shouldAdd: willBeFavorite,
-                                ),
-                              );
-                            },
-                          );
-                        }),
-                      if (state.isLoadingMore) ...[
-                        const SizedBox(height: 12),
-                        const Center(child: CircularProgressIndicator()),
-                        const SizedBox(height: 16),
-                      ] else if (!state.hasMore &&
-                          state.status == QuotesStatus.success &&
-                          state.quotes.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Text(
-                            AppStrings.youReachedTheEnd,
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
