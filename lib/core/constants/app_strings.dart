@@ -54,6 +54,7 @@ class AppStrings {
 
   // Common UI
   static const String somethingWentWrong = 'Something went wrong.';
+  static const String loading = 'Loading…';
   static const String retry = 'Retry';
   static const String refreshedSuccessfully = 'Refreshed Successfully.';
   static const String youReachedTheEnd = 'You reached the end.';
@@ -65,6 +66,11 @@ class AppStrings {
   static const String fontSize = 'Font Size';
   static const String notificationTime = 'Notification Time';
   static const String defaultNotificationTime = '08:30 AM';
+
+  // Settings (non-UI keys)
+  static const String accentKeyTeal = 'teal';
+  static const String accentKeyRed = 'red';
+  static const String accentKeyIndigo = 'indigo';
 
   // Favorites
   static const String noFavouritesFound = 'No Favourites found';
@@ -89,6 +95,18 @@ class AppStrings {
   static const String permissionDeniedMessage =
       'Permission denied. Please allow Photos/Storage permission in Settings and try again.';
   static const String saveFailedMessage = 'Could not save image to gallery.';
+
+  // Notifications
+  static const String dailyQuoteReminder = 'Daily quote reminder';
+  static const String dailyQuoteReminderSubtitle =
+      'Get a quote notification every day';
+  static const String notificationTimeSaved = 'Notification time saved';
+  static const String notificationsPermissionDenied =
+      'Notifications permission denied.';
+  static const String notificationScheduleFailed =
+      'Could not schedule notifications. Please try again.';
+  static const String dailyQuoteNotificationFallbackBody =
+      'Open QuoteVault for today’s quote.';
 
   static const String quoteStyleGradient = 'Gradient';
   static const String quoteStyleBordered = 'Bordered';

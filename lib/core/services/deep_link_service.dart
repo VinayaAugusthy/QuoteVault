@@ -81,7 +81,7 @@ class DeepLinkService {
 
     Future.delayed(_errorDelay, () {
       final context = _navigatorKey?.currentState?.context;
-      if (context != null) {
+      if (context != null && context.mounted) {
         String errorMessage = 'Password reset link is invalid or has expired.';
         if (errorCode == 'otp_expired') {
           errorMessage =
@@ -103,7 +103,7 @@ class DeepLinkService {
     );
     Future.delayed(_errorDelay, () {
       final context = _navigatorKey?.currentState?.context;
-      if (context != null) {
+      if (context != null && context.mounted) {
         SnackbarUtils.showError(
           context,
           'Invalid password reset link. Please request a new one.',

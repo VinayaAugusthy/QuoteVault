@@ -3,6 +3,7 @@ package com.example.quote_vault.widget
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.quote_vault.BuildConfig
 import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
@@ -36,13 +37,13 @@ class QuoteOfDayWidgetWorker(
 
   private fun fetchQuotesCount(): Long? {
     // Ask PostgREST for an exact count but return 0 rows (faster).
-    val url = URL("${Api.supabaseUrl}/rest/v1/quotes?select=id&limit=0")
+    val url = URL("${BuildConfig.SUPABASE_URL}/rest/v1/quotes?select=id&limit=0")
     val conn = (url.openConnection() as HttpURLConnection).apply {
       requestMethod = "GET"
       connectTimeout = 12_000
       readTimeout = 12_000
-      setRequestProperty("apikey", Api.supabaseAnonKey)
-      setRequestProperty("Authorization", "Bearer ${Api.supabaseAnonKey}")
+      setRequestProperty("apikey", BuildConfig.SUPABASE_ANON_KEY)
+      setRequestProperty("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
       setRequestProperty("Accept", "application/json")
       setRequestProperty("Prefer", "count=exact")
     }
@@ -65,7 +66,7 @@ class QuoteOfDayWidgetWorker(
 
   private fun fetchQuoteAtOffset(offset: Int): QuoteOfDayWidgetQuote? {
     val url = URL(
-      "${Api.supabaseUrl}/rest/v1/quotes" +
+      "${BuildConfig.SUPABASE_URL}/rest/v1/quotes" +
         "?select=id,body,author,created_at" +
         "&order=created_at.asc" +
         "&limit=1" +
@@ -75,8 +76,8 @@ class QuoteOfDayWidgetWorker(
       requestMethod = "GET"
       connectTimeout = 12_000
       readTimeout = 12_000
-      setRequestProperty("apikey", Api.supabaseAnonKey)
-      setRequestProperty("Authorization", "Bearer ${Api.supabaseAnonKey}")
+      setRequestProperty("apikey", BuildConfig.SUPABASE_ANON_KEY)
+      setRequestProperty("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
       setRequestProperty("Accept", "application/json")
     }
 
@@ -97,11 +98,6 @@ class QuoteOfDayWidgetWorker(
     }
   }
 
-  private object Api {
-    // Keep these in sync with lib/core/constants/api_constants.dart
-    const val supabaseUrl = "https://taykdllwwqyeepmouxqd.supabase.co"
-    const val supabaseAnonKey = "sb_publishable_iRXjbJEL7DZVdVwidf3Cbw_mg8BvNWb"
-  }
 }
 
 
