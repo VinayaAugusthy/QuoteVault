@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/services/user_profile_local_service.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
@@ -48,12 +47,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       final dir = await getApplicationDocumentsDirectory();
       final destPath = '${dir.path}/profile_avatar_${widget.userId}.jpg';
-      final saved = await File(picked.path).copy(destPath);
+      final destFile = File(destPath);
+      if (await destFile.exists()) {
+        await destFile.delete();
+      }
+      final savedImage = await File(picked.path).readAsBytes();
+      final saved = await destFile.writeAsBytes(savedImage);
       await UserProfileLocalService.setAvatarPath(widget.userId, saved.path);
 
       if (!mounted) return;
+      final provider = FileImage(File(saved.path));
+      await provider.evict();
       setState(() => _avatarPath = saved.path);
-      SnackbarUtils.showSuccess(context, AppStrings.profilePictureUpdated);
+      if (mounted) {
+        SnackbarUtils.showSuccess(context, AppStrings.profilePictureUpdated);
+      }
     } catch (e) {
       if (!mounted) return;
       SnackbarUtils.showError(
