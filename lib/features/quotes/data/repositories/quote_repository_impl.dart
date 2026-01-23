@@ -1,11 +1,16 @@
 import '../../domain/entities/quote.dart';
 import '../../domain/repositories/quote_repository.dart';
+import 'package:quote_vault/core/services/daily_quote_service.dart';
 import '../datasources/quote_remote_datasource.dart';
 
 class QuoteRepositoryImpl implements QuoteRepository {
   final QuoteRemoteDataSource remoteDataSource;
+  final DailyQuoteService dailyQuoteService;
 
-  QuoteRepositoryImpl({required this.remoteDataSource});
+  QuoteRepositoryImpl({
+    required this.remoteDataSource,
+    required this.dailyQuoteService,
+  });
 
   @override
   Future<List<Quote>> getQuotes({
@@ -34,7 +39,7 @@ class QuoteRepositoryImpl implements QuoteRepository {
 
   @override
   Future<Quote?> getDailyQuote() {
-    return remoteDataSource.fetchDailyQuote();
+    return dailyQuoteService.getDailyQuote();
   }
 
   @override

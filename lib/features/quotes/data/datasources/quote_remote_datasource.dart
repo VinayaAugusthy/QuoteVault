@@ -12,6 +12,9 @@ abstract class QuoteRemoteDataSource {
 
   Future<List<String>> fetchCategories();
 
+  /// Returns all quotes in a stable order for deterministic daily selection.
+  Future<List<QuoteModel>> fetchAllQuotesForDailyQuote();
+
   Future<QuoteModel?> fetchDailyQuote();
 
   Future<List<QuoteModel>> fetchQuotesByIds(List<String> quoteIds);
@@ -103,6 +106,16 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
 
   @override
   Future<QuoteModel?> fetchDailyQuote() async {
+    final all = await fetchAllQuotesForDailyQuote();
+    if (all.isEmpty) return null;
+
+    final dayOffset = DateTime.now().toUtc().difference(_dailyQuoteSeed).inDays;
+    final index = dayOffset % all.length;
+    return all[index];
+  }
+
+  @override
+  Future<List<QuoteModel>> fetchAllQuotesForDailyQuote() async {
     final result = await supabaseClient
         .from('quotes')
         .select(_columns)
@@ -110,12 +123,7 @@ class QuoteRemoteDataSourceImpl implements QuoteRemoteDataSource {
     final data = (result as List<dynamic>).cast<Map<String, dynamic>>().toList(
       growable: false,
     );
-
-    if (data.isEmpty) return null;
-
-    final dayOffset = DateTime.now().toUtc().difference(_dailyQuoteSeed).inDays;
-    final index = dayOffset % data.length;
-    return QuoteModel.fromMap(data[index]);
+    return data.map(QuoteModel.fromMap).toList();
   }
 
   @override

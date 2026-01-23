@@ -5,13 +5,87 @@ import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/theme/app_theme.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
+import 'package:quote_vault/core/di/injection_container.dart';
+import 'package:quote_vault/core/services/notification_service.dart';
+import 'package:quote_vault/core/utils/snackbar_utils.dart';
+import 'package:quote_vault/features/settings/presentation/widgets/settings_tile.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late final NotificationService _notificationService;
+  TimeOfDay? _time;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationService = InjectionContainer().notificationService;
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final t = await _notificationService.getDailyNotificationTime();
+      if (!mounted) return;
+      setState(() {
+        _time = t;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      SnackbarUtils.showError(context, AppStrings.somethingWentWrong);
+    }
+  }
+
+  String _formatTime(BuildContext context, TimeOfDay time) {
+    return MaterialLocalizations.of(context).formatTimeOfDay(time);
+  }
+
+  Future<void> _pickTime() async {
+    if (!mounted) return;
+
+    final initial = _time ?? const TimeOfDay(hour: 8, minute: 0);
+    final picked = await showTimePicker(context: context, initialTime: initial);
+    if (picked == null) return;
+
+    await _notificationService.setDailyNotificationTime(picked);
+    final granted = await _notificationService.requestPermissionOnFirstLaunch();
+    if (!granted) {
+      if (!mounted) return;
+      SnackbarUtils.showError(
+        context,
+        AppStrings.notificationsPermissionDenied,
+      );
+      setState(() => _time = picked);
+      return;
+    }
+
+    final scheduledCount = await _notificationService
+        .rescheduleDailyQuoteNotifications(time: picked);
+    if (!mounted) return;
+    setState(() => _time = picked);
+    if (scheduledCount > 0) {
+      SnackbarUtils.showSuccess(context, AppStrings.notificationTimeSaved);
+    } else {
+      SnackbarUtils.showError(context, AppStrings.notificationScheduleFailed);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final subtitle = _loading
+        ? AppStrings.loading
+        : _time == null
+        ? AppStrings.dailyQuoteReminderSubtitle
+        : '${AppStrings.notificationTime}: ${_formatTime(context, _time!)}';
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.navSettings)),
@@ -74,27 +148,37 @@ class SettingsPage extends StatelessWidget {
                           Row(
                             children: [
                               _AccentDot(
-                                accentKey: 'teal',
-                                selected: state.accentColor == 'teal',
+                                accentKey: AppStrings.accentKeyTeal,
+                                selected:
+                                    state.accentColor ==
+                                    AppStrings.accentKeyTeal,
                                 onTap: () => context
                                     .read<SettingsCubit>()
-                                    .changeAccentColor('teal'),
+                                    .changeAccentColor(
+                                      AppStrings.accentKeyTeal,
+                                    ),
                               ),
                               const SizedBox(width: 16),
                               _AccentDot(
-                                accentKey: 'red',
-                                selected: state.accentColor == 'red',
+                                accentKey: AppStrings.accentKeyRed,
+                                selected:
+                                    state.accentColor ==
+                                    AppStrings.accentKeyRed,
                                 onTap: () => context
                                     .read<SettingsCubit>()
-                                    .changeAccentColor('red'),
+                                    .changeAccentColor(AppStrings.accentKeyRed),
                               ),
                               const SizedBox(width: 16),
                               _AccentDot(
-                                accentKey: 'indigo',
-                                selected: state.accentColor == 'indigo',
+                                accentKey: AppStrings.accentKeyIndigo,
+                                selected:
+                                    state.accentColor ==
+                                    AppStrings.accentKeyIndigo,
                                 onTap: () => context
                                     .read<SettingsCubit>()
-                                    .changeAccentColor('indigo'),
+                                    .changeAccentColor(
+                                      AppStrings.accentKeyIndigo,
+                                    ),
                               ),
                             ],
                           ),
@@ -168,34 +252,11 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: 22),
               const _SectionLabel(text: AppStrings.dailyReminders),
               const SizedBox(height: 10),
-              _Card(
-                child: _RowTile(
-                  leading: _IconBubble(
-                    color: scheme.primary.withValues(alpha: 0.15),
-                    child: Icon(
-                      Icons.notifications_rounded,
-                      color: scheme.primary,
-                    ),
-                  ),
-                  title: AppStrings.notificationTime,
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      AppStrings.defaultNotificationTime,
-                      style: TextStyle(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
+              SettingsTile(
+                icon: Icons.notifications_active_outlined,
+                title: AppStrings.dailyQuoteReminder,
+                subtitle: subtitle,
+                onTap: _pickTime,
               ),
               const SizedBox(height: 8),
             ],

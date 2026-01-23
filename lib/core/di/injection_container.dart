@@ -19,6 +19,7 @@ import '../../features/collections/domain/usecases/add_quote_to_collection_useca
 import '../../features/collections/domain/usecases/create_collection_usecase.dart';
 import '../../features/collections/domain/usecases/get_collections_usecase.dart';
 import '../../features/collections/presentation/bloc/collections_bloc.dart';
+import '../../features/quotes/data/datasources/quote_local_datasource.dart';
 import '../../features/quotes/data/datasources/quote_remote_datasource.dart';
 import '../../features/quotes/data/repositories/quote_repository_impl.dart';
 import '../../features/quotes/data/repositories/quote_share_repository_impl.dart';
@@ -38,6 +39,8 @@ import '../../features/settings/data/repositories/settings_repository_impl.dart'
 import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../../features/settings/presentation/cubit/settings_cubit.dart';
 import '../../features/settings/presentation/cubit/settings_state.dart';
+import '../services/notification_service.dart';
+import '../services/daily_quote_service.dart';
 
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -70,8 +73,20 @@ class InjectionContainer {
   QuoteRemoteDataSource get quoteRemoteDataSource =>
       QuoteRemoteDataSourceImpl(supabaseClient: supabaseClient);
 
-  QuoteRepository get quoteRepository =>
-      QuoteRepositoryImpl(remoteDataSource: quoteRemoteDataSource);
+  QuoteLocalDataSource get quoteLocalDataSource => QuoteLocalDataSource();
+
+  DailyQuoteService get dailyQuoteService => DailyQuoteService(
+    remoteDataSource: quoteRemoteDataSource,
+    localDataSource: quoteLocalDataSource,
+  );
+
+  NotificationService get notificationService =>
+      NotificationService(dailyQuoteService: dailyQuoteService);
+
+  QuoteRepository get quoteRepository => QuoteRepositoryImpl(
+    remoteDataSource: quoteRemoteDataSource,
+    dailyQuoteService: dailyQuoteService,
+  );
 
   QuoteShareRepository get quoteShareRepository => QuoteShareRepositoryImpl();
 

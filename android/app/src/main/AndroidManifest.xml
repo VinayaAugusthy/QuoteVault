@@ -6,10 +6,15 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- Required for Supabase API calls + Quote of the Day widget updates -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 13+ notifications permission -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Optional: allows exact alarm scheduling on Android 12+ when permitted by the user/device -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <application
         android:label="quote_vault"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -7,6 +7,7 @@ import 'core/di/injection_container.dart';
 import 'core/services/deep_link_service.dart';
 import 'core/services/widget_intent_service.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/notification_service.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
@@ -33,6 +34,7 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
   Uri? _pendingDeepLink;
   bool _deepLinkInitialized = false;
   bool _widgetIntentInitialized = false;
+  bool _notificationsInitialized = false;
 
   static const Duration _pendingDeepLinkDelay = Duration(milliseconds: 800);
   static const Duration _pendingWidgetIntentDelay = Duration(milliseconds: 800);
@@ -41,6 +43,35 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
   void initState() {
     super.initState();
     _checkInitialDeepLink();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _initializeNotificationsIfNeeded();
+    });
+  }
+
+  Future<void> _initializeNotificationsIfNeeded() async {
+    if (_notificationsInitialized) return;
+    _notificationsInitialized = true;
+
+    final NotificationService service =
+        InjectionContainer().notificationService;
+
+    try {
+      await service.initialize();
+      final granted = await service.requestPermissionOnFirstLaunch();
+      if (!granted) return;
+
+      await service.rescheduleDailyQuoteNotifications();
+    } catch (e, st) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'NotificationService',
+          context: ErrorDescription('Initializing daily quote notifications'),
+        ),
+      );
+    }
   }
 
   void _initializeDeepLinkService(BuildContext context) {
