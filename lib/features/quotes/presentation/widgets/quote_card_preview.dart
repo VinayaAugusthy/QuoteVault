@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quote_vault/features/quotes/domain/entities/quote.dart';
+import 'package:quote_vault/features/settings/presentation/cubit/settings_cubit.dart';
 
 import 'quote_card_styles.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -18,6 +20,8 @@ class QuoteCardPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontScale = context.select((SettingsCubit c) => c.state.fontScale);
+
     return RepaintBoundary(
       key: repaintBoundaryKey,
       child: Container(
@@ -31,6 +35,7 @@ class QuoteCardPreview extends StatelessWidget {
             Text(
               '"${quote.body}"',
               textAlign: TextAlign.center,
+              textScaler: TextScaler.linear(fontScale),
               style: TextStyle(
                 fontSize: 18,
                 height: 1.45,

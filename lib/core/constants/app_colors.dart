@@ -4,6 +4,8 @@ class AppColors {
   AppColors._();
 
   static const Color primaryTeal = Color(0xFF4ECDC4);
+  static const Color primaryRed = Color(0xFFE53935);
+  static const Color primaryIndigo = Color(0xFF3F51B5);
   static const Color lightTeal = Color(0xFFB2E5E1);
   static const Color tealLink = Color(0xFF6EDDD6);
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
 import 'core/constants/api_constants.dart';
+import 'core/di/injection_container.dart';
+import 'features/settings/presentation/cubit/settings_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,5 +14,12 @@ void main() async {
     anonKey: ApiConstants.supabaseAnonKey,
   );
 
-  runApp(const QuoteVaultApp());
+  final container = InjectionContainer();
+  final mergedSettings = await container.settingsRepository.loadMerged();
+  final initialSettings = SettingsState.fromSettings(
+    mergedSettings,
+    initialized: true,
+  );
+
+  runApp(QuoteVaultApp(initialSettings: initialSettings));
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
 
@@ -14,27 +13,22 @@ class CollectionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundWhite,
       appBar: AppBar(
         title: const Text(AppStrings.navCollections),
         centerTitle: true,
-        backgroundColor: AppColors.backgroundWhite,
-        elevation: 0,
       ),
       body: BlocBuilder<CollectionsBloc, CollectionsState>(
         builder: (context, state) {
           if (state.status == CollectionsStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryTeal),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state.status == CollectionsStatus.failure &&
               state.collections.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 AppStrings.somethingWentWrong,
-                style: TextStyle(color: AppColors.errorRed),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             );
           }
@@ -43,10 +37,14 @@ class CollectionsPage extends StatelessWidget {
             children: [
               Expanded(
                 child: state.collections.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           AppStrings.noCollectionsYet,
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       )
                     : Padding(

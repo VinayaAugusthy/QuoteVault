@@ -51,6 +51,13 @@ class AppStrings {
   // Common UI
   static const String somethingWentWrong = 'Something went wrong.';
   static const String quoteOfTheDay = 'Quote of the Day';
+  static const String dailyReminders = 'DAILY REMINDERS';
+  static const String appearance = 'APPEARANCE';
+  static const String darkMode = 'Dark Mode';
+  static const String accentColor = 'Accent Color';
+  static const String fontSize = 'Font Size';
+  static const String notificationTime = 'Notification Time';
+  static const String defaultNotificationTime = '08:30 AM';
 
   // Favorites
   static const String noFavouritesFound = 'No Favourites found';

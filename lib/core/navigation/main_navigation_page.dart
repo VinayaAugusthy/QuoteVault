@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/di/injection_container.dart';
 import 'package:quote_vault/core/navigation/persistent_bottom_nav_bar.dart';
 import 'package:quote_vault/features/collections/presentation/pages/collections_page.dart';
@@ -59,7 +58,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       child: Builder(
         builder: (innerContext) {
           return Scaffold(
-            backgroundColor: AppColors.backgroundWhite,
             body: IndexedStack(
               index: _currentIndex,
               children: const [

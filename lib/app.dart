@@ -5,16 +5,20 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'core/constants/route_constants.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/deep_link_service.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/reset_password_page.dart';
 import 'core/navigation/main_navigation_page.dart';
-import 'core/constants/app_colors.dart';
+import 'features/settings/presentation/cubit/settings_cubit.dart';
+import 'features/settings/presentation/cubit/settings_state.dart';
 
 class QuoteVaultApp extends StatefulWidget {
-  const QuoteVaultApp({super.key});
+  final SettingsState initialSettings;
+
+  const QuoteVaultApp({super.key, required this.initialSettings});
 
   @override
   State<QuoteVaultApp> createState() => _QuoteVaultAppState();
@@ -69,6 +73,11 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
           create: (_) =>
               InjectionContainer().authBloc..add(const CheckAuthStatus()),
         ),
+        BlocProvider<SettingsCubit>(
+          create: (_) => InjectionContainer().settingsCubit(
+            initialState: widget.initialSettings,
+          ),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -82,61 +91,86 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
             });
           }
 
-          return BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              final home = state is AuthAuthenticated
-                  ? MainNavigationPage(userId: state.user.id)
-                  : const LoginPage();
-
-              return MaterialApp(
-                navigatorKey: _navigatorKey,
-                title: 'QuoteVault',
-                theme: ThemeData(
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: AppColors.primaryTeal,
-                  ),
-                  useMaterial3: true,
-                ),
-                home: home,
-                routes: {
-                  RouteConstants.login: (context) => const LoginPage(),
-                  RouteConstants.register: (context) => const RegisterPage(),
-                  RouteConstants.forgotPassword: (context) =>
-                      const ForgotPasswordPage(),
-                  RouteConstants.resetPassword: (context) =>
-                      const ResetPasswordPage(),
-                  RouteConstants.quotesList: (context) {
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user == null) {
-                      return const LoginPage();
-                    }
-                    return MainNavigationPage(userId: user.id, initialIndex: 0);
-                  },
-                  RouteConstants.favorites: (context) {
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user == null) {
-                      return const LoginPage();
-                    }
-                    return MainNavigationPage(userId: user.id, initialIndex: 1);
-                  },
-                  RouteConstants.collections: (context) {
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user == null) {
-                      return const LoginPage();
-                    }
-                    return MainNavigationPage(userId: user.id, initialIndex: 2);
-                  },
-                  RouteConstants.settings: (context) {
-                    final user = Supabase.instance.client.auth.currentUser;
-                    if (user == null) {
-                      return const LoginPage();
-                    }
-                    return MainNavigationPage(userId: user.id, initialIndex: 3);
-                  },
-                },
-                debugShowCheckedModeBanner: false,
-              );
+          return BlocListener<AuthBloc, AuthState>(
+            listenWhen: (prev, curr) => curr is AuthAuthenticated,
+            listener: (context, state) {
+              // After login, pull remote settings so they sync across devices.
+              context.read<SettingsCubit>().loadSettings();
             },
+            child: BlocBuilder<SettingsCubit, SettingsState>(
+              builder: (context, settingsState) {
+                return BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, authState) {
+                    final home = authState is AuthAuthenticated
+                        ? MainNavigationPage(userId: authState.user.id)
+                        : const LoginPage();
+
+                    return MaterialApp(
+                      navigatorKey: _navigatorKey,
+                      title: 'QuoteVault',
+                      theme: AppTheme.light(settingsState.accentColor),
+                      darkTheme: AppTheme.dark(settingsState.accentColor),
+                      themeMode: settingsState.themeMode,
+                      home: home,
+                      routes: {
+                        RouteConstants.login: (context) => const LoginPage(),
+                        RouteConstants.register: (context) =>
+                            const RegisterPage(),
+                        RouteConstants.forgotPassword: (context) =>
+                            const ForgotPasswordPage(),
+                        RouteConstants.resetPassword: (context) =>
+                            const ResetPasswordPage(),
+                        RouteConstants.quotesList: (context) {
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+                          if (user == null) {
+                            return const LoginPage();
+                          }
+                          return MainNavigationPage(
+                            userId: user.id,
+                            initialIndex: 0,
+                          );
+                        },
+                        RouteConstants.favorites: (context) {
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+                          if (user == null) {
+                            return const LoginPage();
+                          }
+                          return MainNavigationPage(
+                            userId: user.id,
+                            initialIndex: 1,
+                          );
+                        },
+                        RouteConstants.collections: (context) {
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+                          if (user == null) {
+                            return const LoginPage();
+                          }
+                          return MainNavigationPage(
+                            userId: user.id,
+                            initialIndex: 2,
+                          );
+                        },
+                        RouteConstants.settings: (context) {
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+                          if (user == null) {
+                            return const LoginPage();
+                          }
+                          return MainNavigationPage(
+                            userId: user.id,
+                            initialIndex: 3,
+                          );
+                        },
+                      },
+                      debugShowCheckedModeBanner: false,
+                    );
+                  },
+                );
+              },
+            ),
           );
         },
       ),

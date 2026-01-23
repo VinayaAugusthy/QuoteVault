@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_card.dart';
@@ -21,13 +20,7 @@ class CollectionDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundWhite,
-      appBar: AppBar(
-        title: Text(collectionName),
-        centerTitle: true,
-        backgroundColor: AppColors.backgroundWhite,
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(collectionName), centerTitle: true),
       body: BlocBuilder<CollectionsBloc, CollectionsState>(
         builder: (context, state) {
           final favIds = context.select(
@@ -52,10 +45,12 @@ class CollectionDetailPage extends StatelessWidget {
 
           final quotes = cached ?? const [];
           if (quotes.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 AppStrings.noQuotesAddedYet,
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             );
           }

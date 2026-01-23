@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_card.dart';
@@ -12,12 +11,9 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundWhite,
       appBar: AppBar(
         title: const Text(AppStrings.navFavorites),
         centerTitle: true,
-        backgroundColor: AppColors.backgroundWhite,
-        elevation: 0,
       ),
       body: BlocBuilder<FavoritesBloc, FavoritesState>(
         builder: (context, state) {
@@ -26,25 +22,25 @@ class FavoritesPage extends StatelessWidget {
           }
 
           if (state.status == FavoritesStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryTeal),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state.status == FavoritesStatus.failure) {
-            return const Center(
+            return Center(
               child: Text(
                 AppStrings.failedToLoadFavourites,
-                style: TextStyle(color: AppColors.errorRed),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             );
           }
 
           if (state.favorites.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 AppStrings.noFavouritesFound,
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             );
           }

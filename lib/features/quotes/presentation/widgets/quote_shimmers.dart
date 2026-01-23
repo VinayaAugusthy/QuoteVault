@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/widgets/shimmer.dart';
 
 class QuoteOfTheDayShimmer extends StatelessWidget {
@@ -7,15 +6,16 @@ class QuoteOfTheDayShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        color: AppColors.lightTeal.withValues(alpha: 0.35),
+        color: scheme.primary.withValues(alpha: 0.18),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowBlack.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             offset: const Offset(0, 8),
             blurRadius: 20,
           ),
@@ -44,16 +44,19 @@ class QuoteCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderGrey.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowBlack.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

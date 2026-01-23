@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 
 enum QuoteCardStyleId { gradient, bordered, minimal }
@@ -27,78 +26,65 @@ class QuoteCardStyle {
   static const all = <QuoteCardStyle>[gradient, bordered, minimal];
 
   BoxDecoration decoration(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (id) {
       case QuoteCardStyleId.gradient:
         return BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: const LinearGradient(
-            colors: [
-              AppColors.quoteCardGradientStart,
-              AppColors.quoteCardGradientEnd,
-            ],
+          gradient: LinearGradient(
+            colors: [scheme.primary, scheme.tertiary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         );
       case QuoteCardStyleId.bordered:
         return BoxDecoration(
-          color: AppColors.quoteCardBorderedBackground,
+          color: scheme.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.primaryTeal, width: 3),
+          border: Border.all(color: scheme.primary, width: 3),
         );
       case QuoteCardStyleId.minimal:
-        final brightness = Theme.of(context).brightness;
-        final isDark = brightness == Brightness.dark;
         return BoxDecoration(
-          color: isDark
-              ? AppColors.quoteCardMinimalDarkBackground
-              : AppColors.backgroundWhite,
+          color: scheme.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: isDark
-                ? AppColors.quoteCardMinimalDarkBorder
-                : AppColors.borderGrey,
-          ),
+          border: Border.all(color: Theme.of(context).dividerColor),
         );
     }
   }
 
   Color quoteTextColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (id) {
       case QuoteCardStyleId.gradient:
-        return AppColors.backgroundWhite;
+        return scheme.onPrimary;
       case QuoteCardStyleId.bordered:
-        return AppColors.textPrimary;
+        return scheme.onSurface;
       case QuoteCardStyleId.minimal:
-        return Theme.of(context).brightness == Brightness.dark
-            ? AppColors.quoteCardMinimalDarkText
-            : AppColors.textPrimary;
+        return scheme.onSurface;
     }
   }
 
   Color authorTextColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (id) {
       case QuoteCardStyleId.gradient:
-        return AppColors.backgroundWhite.withValues(alpha: 0.85);
+        return scheme.onPrimary.withValues(alpha: 0.85);
       case QuoteCardStyleId.bordered:
-        return AppColors.textSecondary;
+        return scheme.onSurfaceVariant;
       case QuoteCardStyleId.minimal:
-        return Theme.of(context).brightness == Brightness.dark
-            ? AppColors.quoteCardMinimalDarkSubtext
-            : AppColors.textSecondary;
+        return scheme.onSurfaceVariant;
     }
   }
 
   Color chipPreviewColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (id) {
       case QuoteCardStyleId.gradient:
-        return AppColors.primaryTeal;
+        return scheme.primary;
       case QuoteCardStyleId.bordered:
-        return AppColors.quoteCardBorderedBackground;
+        return scheme.surface;
       case QuoteCardStyleId.minimal:
-        return Theme.of(context).brightness == Brightness.dark
-            ? AppColors.quoteCardMinimalDarkBackground
-            : AppColors.backgroundWhite;
+        return scheme.surface;
     }
   }
 }

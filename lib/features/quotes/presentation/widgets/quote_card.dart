@@ -3,6 +3,7 @@ import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
+import 'package:quote_vault/features/settings/presentation/cubit/settings_cubit.dart';
 
 import '../../domain/entities/quote.dart';
 import 'package:quote_vault/features/collections/presentation/widgets/add_to_collection_bottom_sheet.dart';
@@ -34,7 +35,7 @@ class QuoteCard extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.backgroundWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -65,6 +66,7 @@ class QuoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     bool isInAnyCollection = false;
     try {
       isInAnyCollection = context.select(
@@ -75,16 +77,20 @@ class QuoteCard extends StatelessWidget {
       isInAnyCollection = false;
     }
 
+    final fontScale = context.select((SettingsCubit c) => c.state.fontScale);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderGrey.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.35),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowBlack.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -97,10 +103,11 @@ class QuoteCard extends StatelessWidget {
           Text(
             '"${quote.body}"',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            textScaler: TextScaler.linear(fontScale),
+            style: TextStyle(
               fontSize: 16,
               height: 1.5,
-              color: AppColors.textPrimary,
+              color: scheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -112,22 +119,20 @@ class QuoteCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 16,
-                      backgroundColor: AppColors.primaryTeal.withValues(
-                        alpha: 0.2,
-                      ),
-                      child: const Icon(
+                      backgroundColor: scheme.primary.withValues(alpha: 0.15),
+                      child: Icon(
                         Icons.person,
                         size: 18,
-                        color: AppColors.primaryTeal,
+                        color: scheme.primary,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
                         quote.author,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          color: scheme.onSurfaceVariant,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -143,7 +148,7 @@ class QuoteCard extends StatelessWidget {
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: isFavorite
                           ? AppColors.favoriteRed
-                          : AppColors.iconGrey,
+                          : scheme.onSurfaceVariant,
                       size: 20,
                     ),
                   ),
@@ -158,16 +163,16 @@ class QuoteCard extends StatelessWidget {
                     icon: Icon(
                       Icons.collections_bookmark_outlined,
                       color: isInAnyCollection
-                          ? AppColors.primaryTeal
-                          : AppColors.iconGrey,
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
                       size: 20,
                     ),
                   ),
                   IconButton(
                     onPressed: () => ShareQuoteBottomSheet.show(context, quote),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.share,
-                      color: AppColors.iconGrey,
+                      color: scheme.onSurfaceVariant,
                       size: 20,
                     ),
                   ),

@@ -1,4 +1,9 @@
-// Settings repository interface
+import '../entities/user_settings.dart';
+
 abstract class SettingsRepository {
-  // Add your repository interface methods here
+  Future<UserSettings> loadMerged();
+
+  Future<void> saveLocal(UserSettings settings);
+
+  Future<void> saveRemote(UserSettings settings);
 }

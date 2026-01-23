@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/constants/route_constants.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
@@ -9,6 +8,7 @@ import 'package:quote_vault/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_card.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_shimmers.dart';
+import 'package:quote_vault/features/settings/presentation/cubit/settings_cubit.dart';
 
 class QuotesListPage extends StatelessWidget {
   const QuotesListPage({super.key});
@@ -33,19 +33,21 @@ class QuotesListPage extends StatelessWidget {
   }
 
   Widget _buildQuoteOfTheDayCard(BuildContext context, QuotesState state) {
+    final scheme = Theme.of(context).colorScheme;
     final dailyQuote = state.dailyQuote;
     final quoteText = dailyQuote?.body ?? AppStrings.dailyQuoteFallback;
     final authorText = dailyQuote?.author ?? AppStrings.dailyAuthorFallback;
     final isFavorite =
         dailyQuote != null && state.favoriteQuoteIds.contains(dailyQuote.id);
+    final fontScale = context.select((SettingsCubit c) => c.state.fontScale);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF00B4D8), Color(0xFF48CAE4)],
+        gradient: LinearGradient(
+          colors: [scheme.primary, scheme.tertiary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -71,6 +73,7 @@ class QuotesListPage extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '"$quoteText"',
+            textScaler: TextScaler.linear(fontScale),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -97,7 +100,7 @@ class QuotesListPage extends StatelessWidget {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.backgroundWhite,
+                  foregroundColor: Colors.white,
                   side: const BorderSide(color: Colors.white54),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -124,8 +127,8 @@ class QuotesListPage extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.backgroundWhite,
-                    foregroundColor: AppColors.primaryTeal,
+                    backgroundColor: Colors.white,
+                    foregroundColor: scheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -147,6 +150,7 @@ class QuotesListPage extends StatelessWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return TextField(
       onChanged: (value) {
         context.read<QuotesBloc>().add(QuotesSearchQueryChanged(value));
@@ -155,7 +159,7 @@ class QuotesListPage extends StatelessWidget {
         hintText: AppStrings.searchHint,
         prefixIcon: const Icon(Icons.search),
         filled: true,
-        fillColor: AppColors.backgroundWhite,
+        fillColor: scheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
@@ -166,6 +170,7 @@ class QuotesListPage extends StatelessWidget {
   }
 
   Widget _buildCategoryChips(BuildContext context, QuotesState state) {
+    final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 46,
       child: ListView.separated(
@@ -178,20 +183,18 @@ class QuotesListPage extends StatelessWidget {
           return ChoiceChip(
             label: Text(category),
             selected: isSelected,
-            selectedColor: AppColors.primaryTeal,
-            backgroundColor: AppColors.backgroundWhite,
-            checkmarkColor: AppColors.backgroundWhite,
+            selectedColor: scheme.primary,
+            backgroundColor: scheme.surface,
+            checkmarkColor: scheme.onPrimary,
             labelStyle: TextStyle(
-              color: isSelected
-                  ? AppColors.backgroundWhite
-                  : AppColors.textSecondary,
+              color: isSelected ? scheme.onPrimary : scheme.onSurfaceVariant,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
                 color: isSelected
-                    ? AppColors.transparent
-                    : AppColors.borderGrey,
+                    ? Colors.transparent
+                    : Theme.of(context).dividerColor,
               ),
             ),
             onSelected: (_) {
@@ -218,29 +221,31 @@ class QuotesListPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundWhite,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
             AppStrings.appName,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          backgroundColor: AppColors.backgroundWhite,
-          elevation: 0,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 10),
               child: CircleAvatar(
                 radius: 18,
-                backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.2),
-                child: const Icon(Icons.person, color: AppColors.primaryTeal),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.15),
+                child: Icon(
+                  Icons.person,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.logout, color: AppColors.primaryTeal),
+              icon: Icon(
+                Icons.logout,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               onPressed: () => _handleLogout(context),
               tooltip: AppStrings.logout,
             ),
@@ -291,10 +296,12 @@ class QuotesListPage extends StatelessWidget {
                     ],
                     if (!isInitialLoading &&
                         state.status == QuotesStatus.failure) ...[
-                      const Center(
+                      Center(
                         child: Text(
                           AppStrings.unableToLoadQuotes,
-                          style: TextStyle(color: AppColors.errorRed),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -302,12 +309,16 @@ class QuotesListPage extends StatelessWidget {
                     if (!isInitialLoading &&
                         state.status == QuotesStatus.success &&
                         state.quotes.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(top: 32),
                         child: Center(
                           child: Text(
                             AppStrings.noQuotesMatchSearch,
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ),
@@ -346,10 +357,14 @@ class QuotesListPage extends StatelessWidget {
                         state.status == QuotesStatus.success &&
                         state.quotes.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      const Center(
+                      Center(
                         child: Text(
                           'You reached the end.',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

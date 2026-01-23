@@ -32,6 +32,12 @@ import '../../features/quotes/domain/usecases/get_quotes_by_ids_usecase.dart';
 import '../../features/quotes/domain/usecases/get_quotes_usecase.dart';
 import '../../features/quotes/domain/usecases/toggle_favorite_usecase.dart';
 import '../../features/quotes/presentation/bloc/quotes_bloc.dart';
+import '../../features/settings/data/datasources/settings_local_datasource.dart';
+import '../../features/settings/data/datasources/settings_remote_datasource.dart';
+import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/repositories/settings_repository.dart';
+import '../../features/settings/presentation/cubit/settings_cubit.dart';
+import '../../features/settings/presentation/cubit/settings_state.dart';
 
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -45,9 +51,21 @@ class InjectionContainer {
   AuthRemoteDataSource get authRemoteDataSource =>
       AuthRemoteDataSourceImpl(supabaseClient: supabaseClient);
 
+  SettingsLocalDataSource get settingsLocalDataSource =>
+      SettingsLocalDataSourceImpl();
+
+  SettingsRemoteDataSource get settingsRemoteDataSource =>
+      SettingsRemoteDataSourceImpl(supabaseClient: supabaseClient);
+
   // Repositories
   AuthRepository get authRepository =>
       AuthRepositoryImpl(remoteDataSource: authRemoteDataSource);
+
+  SettingsRepository get settingsRepository => SettingsRepositoryImpl(
+    localDataSource: settingsLocalDataSource,
+    remoteDataSource: settingsRemoteDataSource,
+    supabaseClient: supabaseClient,
+  );
 
   QuoteRemoteDataSource get quoteRemoteDataSource =>
       QuoteRemoteDataSourceImpl(supabaseClient: supabaseClient);
@@ -110,6 +128,11 @@ class InjectionContainer {
     getCurrentUserUseCase: getCurrentUserUseCase,
     updatePasswordUseCase: updatePasswordUseCase,
     exchangeCodeForSessionUseCase: exchangeCodeForSessionUseCase,
+  );
+
+  SettingsCubit settingsCubit({SettingsState? initialState}) => SettingsCubit(
+    settingsRepository: settingsRepository,
+    initialState: initialState,
   );
 
   QuotesBloc quotesBloc({required String userId}) => QuotesBloc(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/di/injection_container.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
@@ -30,7 +29,7 @@ class ShareQuoteBottomSheet extends StatefulWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.backgroundWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -85,7 +84,7 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
         SnackbarUtils.showWithMessenger(
           messenger,
           successMessage,
-          backgroundColor: AppColors.successGreen,
+          backgroundColor: Colors.green,
         );
       }
     } catch (e) {
@@ -99,21 +98,21 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
         SnackbarUtils.showWithMessenger(
           messenger,
           msg,
-          backgroundColor: AppColors.errorRed,
+          backgroundColor: Colors.red,
         );
       } else if (e is StateError) {
         if (navigator.canPop()) navigator.pop();
         SnackbarUtils.showWithMessenger(
           messenger,
           e.message,
-          backgroundColor: AppColors.errorRed,
+          backgroundColor: Colors.red,
         );
       } else {
         if (navigator.canPop()) navigator.pop();
         SnackbarUtils.showWithMessenger(
           messenger,
           AppStrings.somethingWentWrong,
-          backgroundColor: AppColors.errorRed,
+          backgroundColor: Colors.red,
         );
       }
     } finally {
@@ -150,6 +149,7 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       top: false,
       child: Stack(
@@ -177,12 +177,12 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
                       ChoiceChip(
                         selected: _mode == _ShareMode.text,
                         label: const Text(AppStrings.shareModeText),
-                        selectedColor: AppColors.primaryTeal,
-                        checkmarkColor: AppColors.backgroundWhite,
+                        selectedColor: scheme.primary,
+                        checkmarkColor: scheme.onPrimary,
                         labelStyle: TextStyle(
                           color: _mode == _ShareMode.text
-                              ? AppColors.backgroundWhite
-                              : AppColors.textSecondary,
+                              ? scheme.onPrimary
+                              : scheme.onSurfaceVariant,
                         ),
                         onSelected: _busy
                             ? null
@@ -191,12 +191,12 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
                       ChoiceChip(
                         selected: _mode == _ShareMode.image,
                         label: const Text(AppStrings.shareModeImage),
-                        selectedColor: AppColors.primaryTeal,
-                        checkmarkColor: AppColors.backgroundWhite,
+                        selectedColor: scheme.primary,
+                        checkmarkColor: scheme.onPrimary,
                         labelStyle: TextStyle(
                           color: _mode == _ShareMode.image
-                              ? AppColors.backgroundWhite
-                              : AppColors.textSecondary,
+                              ? scheme.onPrimary
+                              : scheme.onSurfaceVariant,
                         ),
                         onSelected: _busy
                             ? null
@@ -213,8 +213,8 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
                       icon: const Icon(Icons.share),
                       label: const Text(AppStrings.shareTextButton),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: AppColors.backgroundWhite,
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -244,8 +244,8 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
                             icon: const Icon(Icons.share),
                             label: const Text(AppStrings.shareImageButton),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryTeal,
-                              foregroundColor: AppColors.backgroundWhite,
+                              backgroundColor: scheme.primary,
+                              foregroundColor: scheme.onPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -259,8 +259,8 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
                             icon: const Icon(Icons.download),
                             label: const Text(AppStrings.saveImageButton),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryTeal,
-                              foregroundColor: AppColors.backgroundWhite,
+                              backgroundColor: scheme.primary,
+                              foregroundColor: scheme.onPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -277,7 +277,7 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
           if (_busy) ...[
             Positioned.fill(
               child: ColoredBox(
-                color: AppColors.shadowBlack.withValues(alpha: 0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 child: const Center(child: CircularProgressIndicator()),
               ),
             ),
@@ -296,15 +296,16 @@ class _SheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Text(
             AppStrings.share,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: scheme.onSurface,
             ),
           ),
         ),
@@ -324,12 +325,10 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Text(
       title,
-      style: const TextStyle(
-        fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
-      ),
+      style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface),
     );
   }
 }
@@ -341,12 +340,13 @@ class _TextPreviewBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderGrey),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Text(text, style: const TextStyle(height: 1.35)),
     );

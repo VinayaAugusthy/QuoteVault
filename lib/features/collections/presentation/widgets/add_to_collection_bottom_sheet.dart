@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 
 import '../../domain/entities/collection.dart';
@@ -81,6 +80,7 @@ class _AddToCollectionBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       child: Padding(
         padding: _sheetPadding.copyWith(
@@ -103,7 +103,6 @@ class _AddToCollectionBottomSheetState
                 ),
                 const SizedBox(height: 6),
 
-                // Create new section
                 _CreateNewCollectionTile(
                   expanded: _showCreate,
                   onTap: () => setState(() => _showCreate = !_showCreate),
@@ -120,8 +119,8 @@ class _AddToCollectionBottomSheetState
                     child: ElevatedButton(
                       onPressed: _isCreating ? null : _createAndAdd,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: AppColors.backgroundWhite,
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(_sheetRadius),
@@ -140,18 +139,18 @@ class _AddToCollectionBottomSheetState
                   child: Text(
                     AppStrings.yourCollections,
                     style: TextStyle(
-                      color: AppColors.textSecondary.withValues(alpha: 0.9),
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 if (collections.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       AppStrings.noCollectionsYetCreateOne,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: scheme.onSurfaceVariant),
                     ),
                   )
                 else
@@ -181,8 +180,8 @@ class _AddToCollectionBottomSheetState
                         ? null
                         : () => _applySelection(collections),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryTeal,
-                      foregroundColor: AppColors.backgroundWhite,
+                      backgroundColor: scheme.primary,
+                      foregroundColor: scheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(_sheetRadius),
@@ -209,7 +208,7 @@ class _BottomSheetGrabber extends StatelessWidget {
       width: 44,
       height: 5,
       decoration: BoxDecoration(
-        color: AppColors.borderGrey,
+        color: Theme.of(context).dividerColor,
         borderRadius: BorderRadius.circular(999),
       ),
     );
@@ -229,11 +228,7 @@ class _BottomSheetHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
         ),
         IconButton(onPressed: onClose, icon: const Icon(Icons.close)),
@@ -250,6 +245,7 @@ class _CreateNewCollectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -257,28 +253,26 @@ class _CreateNewCollectionTile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.primaryTeal.withValues(alpha: 0.08),
+          color: scheme.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.primaryTeal.withValues(alpha: 0.22),
-          ),
+          border: Border.all(color: scheme.primary.withValues(alpha: 0.22)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.add, color: AppColors.primaryTeal),
+            Icon(Icons.add, color: scheme.primary),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text(
                 AppStrings.createNewCollection,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primaryTeal,
+                  color: scheme.primary,
                 ),
               ),
             ),
             Icon(
               expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-              color: AppColors.primaryTeal,
+              color: scheme.primary,
             ),
           ],
         ),
@@ -298,6 +292,7 @@ class _CollectionNameField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
       textInputAction: TextInputAction.done,
@@ -305,11 +300,11 @@ class _CollectionNameField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: AppStrings.collectionName,
         filled: true,
-        fillColor: AppColors.backgroundWhite,
+        fillColor: scheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
-            color: AppColors.borderGrey.withValues(alpha: 0.7),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
           ),
         ),
       ),
@@ -324,19 +319,17 @@ class _CollectionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return RadioListTile<String?>(
       value: collection.id,
-      activeColor: AppColors.primaryTeal,
+      activeColor: scheme.primary,
       title: Text(
         collection.name,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: scheme.onSurface, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         '${collection.quoteIds.length} quotes',
-        style: const TextStyle(color: AppColors.textSecondary),
+        style: TextStyle(color: scheme.onSurfaceVariant),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
     );

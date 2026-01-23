@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quote_vault/core/constants/app_colors.dart';
 
 class CollectionCard extends StatelessWidget {
   final String name;
@@ -9,19 +8,20 @@ class CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.backgroundWhite,
+          color: scheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.borderGrey.withValues(alpha: 0.6),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.6),
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowBlack.withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -34,11 +34,16 @@ class CollectionCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
+            style:
+                Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface,
+                ) ??
+                TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface,
+                ),
           ),
         ),
       ),

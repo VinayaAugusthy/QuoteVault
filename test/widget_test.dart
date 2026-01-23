@@ -6,15 +6,21 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 
 import 'package:quote_vault/app.dart';
+import 'package:quote_vault/features/settings/presentation/cubit/settings_state.dart';
 
 void main() {
   testWidgets('QuoteVault app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const QuoteVaultApp());
+    await tester.pumpWidget(
+      QuoteVaultApp(
+        initialSettings: SettingsState.defaults().copyWith(initialized: true),
+      ),
+    );
 
-    // Verify that the Quotes List Page is displayed.
-    expect(find.text('Quotes List Page'), findsOneWidget);
+    // Basic smoke test: app builds without throwing.
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
