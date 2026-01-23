@@ -70,8 +70,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             bottomNavigationBar: PersistentBottomNavBar(
               currentIndex: _currentIndex,
               onTap: (index) {
+                if (index == _currentIndex) return;
                 _onIndexChanged(index);
-                if (index == 1) {
+                if (index == 0) {
+                  innerContext.read<QuotesBloc>().add(
+                    const QuotesRefreshRequested(),
+                  );
+                } else if (index == 1) {
                   innerContext.read<FavoritesBloc>().add(
                     const FavoritesRequested(),
                   );

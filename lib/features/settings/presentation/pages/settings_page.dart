@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/theme/app_theme.dart';
 import '../cubit/settings_cubit.dart';
@@ -240,7 +241,7 @@ class _Card extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadowBlack.withValues(alpha: 0.05),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
+import 'package:quote_vault/core/constants/app_colors.dart';
 
 class PersistentBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -19,7 +20,7 @@ class PersistentBottomNavBar extends StatelessWidget {
         color: scheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.shadowBlack.withValues(alpha: 0.05),
             offset: const Offset(0, -2),
             blurRadius: 8,
           ),

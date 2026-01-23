@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/di/injection_container.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
@@ -84,7 +85,7 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
         SnackbarUtils.showWithMessenger(
           messenger,
           successMessage,
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.successGreen,
         );
       }
     } catch (e) {
@@ -98,21 +99,21 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
         SnackbarUtils.showWithMessenger(
           messenger,
           msg,
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.errorRed,
         );
       } else if (e is StateError) {
         if (navigator.canPop()) navigator.pop();
         SnackbarUtils.showWithMessenger(
           messenger,
           e.message,
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.errorRed,
         );
       } else {
         if (navigator.canPop()) navigator.pop();
         SnackbarUtils.showWithMessenger(
           messenger,
           AppStrings.somethingWentWrong,
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.errorRed,
         );
       }
     } finally {
@@ -277,7 +278,7 @@ class _ShareQuoteBottomSheetState extends State<ShareQuoteBottomSheet> {
           if (_busy) ...[
             Positioned.fill(
               child: ColoredBox(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: AppColors.shadowBlack.withValues(alpha: 0.15),
                 child: const Center(child: CircularProgressIndicator()),
               ),
             ),

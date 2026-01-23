@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quote_vault/core/constants/app_colors.dart';
 import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/constants/route_constants.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
@@ -49,16 +50,16 @@ class _QuotesListPageState extends State<QuotesListPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Log out?'),
-          content: const Text('Are you sure you want to log out?'),
+          title: const Text(AppStrings.logoutConfirmTitle),
+          content: const Text(AppStrings.logoutConfirmMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const Text(AppStrings.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Log out'),
+              child: const Text(AppStrings.logout),
             ),
           ],
         );
@@ -117,7 +118,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: AppColors.shadowBlack.withValues(alpha: 0.12),
             offset: const Offset(0, 8),
             blurRadius: 20,
           ),
@@ -129,7 +130,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
           const Text(
             AppStrings.quoteOfTheDay,
             style: TextStyle(
-              color: Colors.white70,
+              color: AppColors.white70,
               fontSize: 12,
               letterSpacing: 1.2,
             ),
@@ -139,7 +140,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
             '"$quoteText"',
             textScaler: TextScaler.linear(fontScale),
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.backgroundWhite,
               fontSize: 22,
               fontWeight: FontWeight.w600,
               height: 1.35,
@@ -148,7 +149,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
           const SizedBox(height: 16),
           Text(
             '– $authorText',
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            style: const TextStyle(color: AppColors.white70, fontSize: 14),
           ),
           const SizedBox(height: 20),
           Row(
@@ -164,8 +165,8 @@ class _QuotesListPageState extends State<QuotesListPage> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white54),
+                  foregroundColor: AppColors.backgroundWhite,
+                  side: const BorderSide(color: AppColors.white54),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -191,7 +192,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.backgroundWhite,
                     foregroundColor: scheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -257,7 +258,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
                 color: isSelected
-                    ? Colors.transparent
+                    ? AppColors.transparent
                     : Theme.of(context).dividerColor,
               ),
             ),
@@ -337,22 +338,30 @@ class _QuotesListPageState extends State<QuotesListPage> {
           ),
           body: BlocConsumer<QuotesBloc, QuotesState>(
             listenWhen: (previous, current) =>
-                previous.errorMessage != current.errorMessage &&
-                current.errorMessage != null,
+                (previous.errorMessage != current.errorMessage &&
+                    current.errorMessage != null) ||
+                (previous.isRefreshing &&
+                    !current.isRefreshing &&
+                    current.errorMessage == null),
             listener: (context, state) {
-              SnackbarUtils.showError(context, state.errorMessage!);
+              if (state.errorMessage != null) {
+                SnackbarUtils.showError(context, state.errorMessage!);
+                return;
+              }
             },
             builder: (context, state) {
-              final isInitialLoading =
-                  state.status == QuotesStatus.loading && !state.isRefreshing;
+              final showShimmers =
+                  state.status == QuotesStatus.loading || state.isRefreshing;
               return RefreshIndicator(
                 onRefresh: () async {
                   final bloc = context.read<QuotesBloc>();
                   bloc.add(const QuotesRefreshRequested());
+                  await bloc.stream.firstWhere((s) => s.isRefreshing);
                   await bloc.stream.firstWhere((s) => !s.isRefreshing);
                 },
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (notification) {
+                    if (state.isRefreshing) return false;
                     if (notification.metrics.pixels >=
                         notification.metrics.maxScrollExtent - 320) {
                       context.read<QuotesBloc>().add(
@@ -368,7 +377,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                       vertical: 16,
                     ),
                     children: [
-                      if (isInitialLoading)
+                      if (showShimmers)
                         ..._buildHomeLoadingChildren(context)
                       else ...[
                         _buildQuoteOfTheDayCard(context, state),
@@ -378,7 +387,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                         _buildCategoryChips(context, state),
                         const SizedBox(height: 16),
                       ],
-                      if (!isInitialLoading &&
+                      if (!showShimmers &&
                           state.status == QuotesStatus.failure) ...[
                         Center(
                           child: Text(
@@ -390,7 +399,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      if (!isInitialLoading &&
+                      if (!showShimmers &&
                           state.status == QuotesStatus.success &&
                           state.quotes.isEmpty)
                         Padding(
@@ -406,7 +415,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                             ),
                           ),
                         ),
-                      if (!isInitialLoading &&
+                      if (!showShimmers &&
                           state.status == QuotesStatus.success &&
                           state.quotes.isNotEmpty)
                         ...state.quotes.map((quote) {
@@ -443,7 +452,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                         const SizedBox(height: 12),
                         Center(
                           child: Text(
-                            'You reached the end.',
+                            AppStrings.youReachedTheEnd,
                             style: TextStyle(
                               color: Theme.of(
                                 context,

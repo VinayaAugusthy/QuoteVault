@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:quote_vault/core/constants/app_strings.dart';
 import 'package:quote_vault/core/services/user_profile_local_service.dart';
 import 'package:quote_vault/core/utils/snackbar_utils.dart';
 import 'package:quote_vault/features/auth/presentation/bloc/auth_bloc.dart';
@@ -52,10 +53,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       if (!mounted) return;
       setState(() => _avatarPath = saved.path);
-      SnackbarUtils.showSuccess(context, 'Profile picture updated.');
+      SnackbarUtils.showSuccess(context, AppStrings.profilePictureUpdated);
     } catch (e) {
       if (!mounted) return;
-      SnackbarUtils.showError(context, 'Unable to update picture: $e');
+      SnackbarUtils.showError(
+        context,
+        '${AppStrings.unableToUpdatePicture} $e',
+      );
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -74,7 +78,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         : null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text(AppStrings.profile)),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -99,7 +103,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     children: [
                       Text(
                         (fullName == null || fullName.trim().isEmpty)
-                            ? 'User'
+                            ? AppStrings.user
                             : fullName.trim(),
                         style: const TextStyle(
                           fontSize: 18,
@@ -134,8 +138,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   : const Icon(Icons.photo_camera),
               label: Text(
                 _avatarPath == null
-                    ? 'Add profile picture'
-                    : 'Change profile picture',
+                    ? AppStrings.addProfilePicture
+                    : AppStrings.changeProfilePicture,
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quote_vault/core/constants/app_strings.dart';
 
 class ErrorDisplayWidget extends StatelessWidget {
   final String message;
@@ -14,7 +15,10 @@ class ErrorDisplayWidget extends StatelessWidget {
         children: [
           Text(message),
           if (onRetry != null)
-            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const Text(AppStrings.retry),
+            ),
         ],
       ),
     );

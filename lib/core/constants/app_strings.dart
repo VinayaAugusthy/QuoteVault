@@ -29,6 +29,10 @@ class AppStrings {
   static const String joinQuoteVault = 'Join QuoteVault';
   static const String passwordPlaceholderLogin = 'Enter your password';
   static const String logout = 'Logout';
+  static const String logoutConfirmTitle = 'Log out?';
+  static const String logoutConfirmMessage =
+      'Are you sure you want to log out?';
+  static const String cancel = 'Cancel';
   static const String resetPassword = 'Reset Password';
   static const String resetPasswordDescription =
       'Enter your new password below to complete the reset process.';
@@ -50,6 +54,9 @@ class AppStrings {
 
   // Common UI
   static const String somethingWentWrong = 'Something went wrong.';
+  static const String retry = 'Retry';
+  static const String refreshedSuccessfully = 'Refreshed Successfully.';
+  static const String youReachedTheEnd = 'You reached the end.';
   static const String quoteOfTheDay = 'Quote of the Day';
   static const String dailyReminders = 'DAILY REMINDERS';
   static const String appearance = 'APPEARANCE';
@@ -64,6 +71,7 @@ class AppStrings {
   static const String failedToLoadFavourites = 'Failed to load favourites';
 
   // Quotes
+  static const String createQuote = 'Create Quote';
   static const String dailyQuoteFallback =
       'Discover new quotes powered by Supabase every day.';
   static const String dailyAuthorFallback = 'QuoteVault Daily';
@@ -91,6 +99,14 @@ class AppStrings {
   static const String unableToLoadQuotes =
       'Unable to load quotes at this time.';
   static const String noQuotesMatchSearch = 'No quotes match your search.';
+
+  // Profile
+  static const String profile = 'Profile';
+  static const String user = 'User';
+  static const String addProfilePicture = 'Add profile picture';
+  static const String changeProfilePicture = 'Change profile picture';
+  static const String profilePictureUpdated = 'Profile picture updated.';
+  static const String unableToUpdatePicture = 'Unable to update picture.';
 
   // Collections
   static const String addToCollection = 'Add to Collection';

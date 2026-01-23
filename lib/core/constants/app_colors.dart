@@ -24,6 +24,7 @@ class AppColors {
 
   static const Color shadowBlack = Color(0xFF000000);
   static const Color transparent = Color(0x00000000);
+  static const Color white70 = Color(0xB3FFFFFF);
   static const Color white54 = Color(0x89FFFFFF);
 
   // Quote card template colors
