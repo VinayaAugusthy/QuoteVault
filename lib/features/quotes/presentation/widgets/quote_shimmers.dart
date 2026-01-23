@@ -124,3 +124,12 @@ class CategoryChipsShimmer extends StatelessWidget {
     );
   }
 }
+
+class SearchBarShimmer extends StatelessWidget {
+  const SearchBarShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ShimmerBox(height: 52, width: double.infinity, borderRadius: 18);
+  }
+}

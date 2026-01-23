@@ -82,11 +82,11 @@ class _QuotesListPageState extends State<QuotesListPage> {
     );
   }
 
-  List<Widget> _buildHomeLoadingChildren(BuildContext context) {
+  List<Widget> _buildHomeLoadingChildren() {
     return [
       const QuoteOfTheDayShimmer(),
       const SizedBox(height: 20),
-      _buildSearchBar(context),
+      const SearchBarShimmer(),
       const SizedBox(height: 12),
       const CategoryChipsShimmer(),
       const SizedBox(height: 16),
@@ -350,8 +350,11 @@ class _QuotesListPageState extends State<QuotesListPage> {
               }
             },
             builder: (context, state) {
+              final showInitialLoading = state.status == QuotesStatus.initial;
               final showShimmers =
-                  state.status == QuotesStatus.loading || state.isRefreshing;
+                  showInitialLoading ||
+                  state.status == QuotesStatus.loading ||
+                  state.isRefreshing;
               return RefreshIndicator(
                 onRefresh: () async {
                   final bloc = context.read<QuotesBloc>();
@@ -378,7 +381,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                     ),
                     children: [
                       if (showShimmers)
-                        ..._buildHomeLoadingChildren(context)
+                        ..._buildHomeLoadingChildren()
                       else ...[
                         _buildQuoteOfTheDayCard(context, state),
                         const SizedBox(height: 20),
