@@ -23,8 +23,29 @@ class QuotesListPage extends StatefulWidget {
 }
 
 class _QuotesListPageState extends State<QuotesListPage> {
+  final TextEditingController _searchController = TextEditingController();
   String? _userId;
   String? _avatarPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    context.read<QuotesBloc>().add(
+      QuotesSearchQueryChanged(_searchController.text),
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -217,11 +238,26 @@ class _QuotesListPageState extends State<QuotesListPage> {
   Widget _buildSearchBar(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return TextField(
-      onChanged: (value) {
-        context.read<QuotesBloc>().add(QuotesSearchQueryChanged(value));
-      },
+      controller: _searchController,
       decoration: InputDecoration(
         hintText: AppStrings.searchHint,
+        suffixIcon: AnimatedBuilder(
+          animation: _searchController,
+          builder: (context, _) {
+            if (_searchController.text.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                _searchController.clear();
+                context.read<QuotesBloc>().add(
+                  const QuotesSearchQueryChanged(''),
+                );
+              },
+            );
+          },
+        ),
         prefixIcon: const Icon(Icons.search),
         filled: true,
         fillColor: scheme.surface,
