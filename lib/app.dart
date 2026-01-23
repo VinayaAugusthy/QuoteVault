@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'core/constants/route_constants.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/deep_link_service.dart';
+import 'core/services/widget_intent_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
@@ -14,6 +15,7 @@ import 'features/auth/presentation/pages/reset_password_page.dart';
 import 'core/navigation/main_navigation_page.dart';
 import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/settings_state.dart';
+import 'features/profile/presentation/pages/user_profile_page.dart';
 
 class QuoteVaultApp extends StatefulWidget {
   final SettingsState initialSettings;
@@ -26,11 +28,14 @@ class QuoteVaultApp extends StatefulWidget {
 
 class _QuoteVaultAppState extends State<QuoteVaultApp> {
   final DeepLinkService _deepLinkService = DeepLinkService();
+  final WidgetIntentService _widgetIntentService = WidgetIntentService();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   Uri? _pendingDeepLink;
   bool _deepLinkInitialized = false;
+  bool _widgetIntentInitialized = false;
 
   static const Duration _pendingDeepLinkDelay = Duration(milliseconds: 800);
+  static const Duration _pendingWidgetIntentDelay = Duration(milliseconds: 800);
 
   @override
   void initState() {
@@ -49,6 +54,16 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
         _deepLinkService.handleDeepLink(_pendingDeepLink);
       });
     }
+  }
+
+  void _initializeWidgetIntentService(BuildContext context) {
+    if (_widgetIntentInitialized) return;
+    _widgetIntentInitialized = true;
+
+    _widgetIntentService.initialize(_navigatorKey);
+    Future.delayed(_pendingWidgetIntentDelay, () {
+      _widgetIntentService.handleInitialLaunchIntent();
+    });
   }
 
   Future<void> _checkInitialDeepLink() async {
@@ -90,6 +105,13 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
               }
             });
           }
+          if (!_widgetIntentInitialized) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && !_widgetIntentInitialized) {
+                _initializeWidgetIntentService(context);
+              }
+            });
+          }
 
           return BlocListener<AuthBloc, AuthState>(
             listenWhen: (prev, curr) => curr is AuthAuthenticated,
@@ -120,6 +142,14 @@ class _QuoteVaultAppState extends State<QuoteVaultApp> {
                             const ForgotPasswordPage(),
                         RouteConstants.resetPassword: (context) =>
                             const ResetPasswordPage(),
+                        RouteConstants.profile: (context) {
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+                          if (user == null) {
+                            return const LoginPage();
+                          }
+                          return UserProfilePage(userId: user.id);
+                        },
                         RouteConstants.quotesList: (context) {
                           final user =
                               Supabase.instance.client.auth.currentUser;

@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <!-- Android 13+ read permission (permission_handler may request this for Permission.photos) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- Required for Supabase API calls + Quote of the Day widget updates -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="quote_vault"
         android:name="${applicationName}"
@@ -36,6 +38,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".widget.QuoteOfDayWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quote_of_day_widget_info" />
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

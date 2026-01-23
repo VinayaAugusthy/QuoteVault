@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,12 +11,74 @@ import 'package:quote_vault/features/quotes/presentation/bloc/quotes_bloc.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_card.dart';
 import 'package:quote_vault/features/quotes/presentation/widgets/quote_shimmers.dart';
 import 'package:quote_vault/features/settings/presentation/cubit/settings_cubit.dart';
+import 'package:quote_vault/core/services/widget_quote_sync_service.dart';
+import 'package:quote_vault/core/services/user_profile_local_service.dart';
 
-class QuotesListPage extends StatelessWidget {
+class QuotesListPage extends StatefulWidget {
   const QuotesListPage({super.key});
 
-  void _handleLogout(BuildContext context) {
-    context.read<AuthBloc>().add(const LogoutRequested());
+  @override
+  State<QuotesListPage> createState() => _QuotesListPageState();
+}
+
+class _QuotesListPageState extends State<QuotesListPage> {
+  String? _userId;
+  String? _avatarPath;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated && _userId != authState.user.id) {
+      _userId = authState.user.id;
+      _loadAvatar();
+    }
+  }
+
+  Future<void> _loadAvatar() async {
+    final userId = _userId;
+    if (userId == null) return;
+    final path = await UserProfileLocalService.getAvatarPath(userId);
+    if (!mounted) return;
+    setState(() => _avatarPath = path);
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Log out?'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Log out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (shouldLogout == true) {
+      authBloc.add(const LogoutRequested());
+    }
+  }
+
+  void _maybeSyncQuoteOfDayToWidget(QuotesState state) {
+    final q = state.dailyQuote;
+    if (q == null) return;
+    WidgetQuoteSyncService.pushQuoteOfDayToWidget(
+      id: q.id,
+      body: q.body,
+      author: q.author,
+    );
   }
 
   List<Widget> _buildHomeLoadingChildren(BuildContext context) {
@@ -208,112 +272,178 @@ class QuotesListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            RouteConstants.login,
-            (route) => false,
-          );
-        } else if (state is AuthError) {
-          SnackbarUtils.showError(context, state.message);
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text(
-            AppStrings.appName,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.15),
-                child: Icon(
-                  Icons.person,
-                  color: Theme.of(context).colorScheme.primary,
+    final avatarFile = (_avatarPath != null && File(_avatarPath!).existsSync())
+        ? File(_avatarPath!)
+        : null;
+
+    return BlocListener<QuotesBloc, QuotesState>(
+      listenWhen: (prev, curr) =>
+          prev.dailyQuote?.id != curr.dailyQuote?.id && curr.dailyQuote != null,
+      listener: (_, state) => _maybeSyncQuoteOfDayToWidget(state),
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              RouteConstants.login,
+              (route) => false,
+            );
+          } else if (state is AuthError) {
+            SnackbarUtils.showError(context, state.message);
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(
+              AppStrings.appName,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: () async {
+                    await Navigator.pushNamed(context, RouteConstants.profile);
+                    await _loadAvatar();
+                  },
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.15),
+                    backgroundImage: avatarFile != null
+                        ? FileImage(avatarFile)
+                        : null,
+                    child: avatarFile == null
+                        ? Icon(
+                            Icons.person,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
+                  ),
                 ),
               ),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.logout,
-                color: Theme.of(context).colorScheme.primary,
+              IconButton(
+                icon: Icon(
+                  Icons.logout,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () => _handleLogout(context),
+                tooltip: AppStrings.logout,
               ),
-              onPressed: () => _handleLogout(context),
-              tooltip: AppStrings.logout,
-            ),
-          ],
-        ),
-        body: BlocConsumer<QuotesBloc, QuotesState>(
-          listenWhen: (previous, current) =>
-              previous.errorMessage != current.errorMessage &&
-              current.errorMessage != null,
-          listener: (context, state) {
-            SnackbarUtils.showError(context, state.errorMessage!);
-          },
-          builder: (context, state) {
-            final isInitialLoading =
-                state.status == QuotesStatus.loading && !state.isRefreshing;
-            return RefreshIndicator(
-              onRefresh: () async {
-                final bloc = context.read<QuotesBloc>();
-                bloc.add(const QuotesRefreshRequested());
-                await bloc.stream.firstWhere((s) => !s.isRefreshing);
-              },
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification.metrics.pixels >=
-                      notification.metrics.maxScrollExtent - 320) {
-                    context.read<QuotesBloc>().add(
-                      const QuotesLoadMoreRequested(),
-                    );
-                  }
-                  return false;
+            ],
+          ),
+          body: BlocConsumer<QuotesBloc, QuotesState>(
+            listenWhen: (previous, current) =>
+                previous.errorMessage != current.errorMessage &&
+                current.errorMessage != null,
+            listener: (context, state) {
+              SnackbarUtils.showError(context, state.errorMessage!);
+            },
+            builder: (context, state) {
+              final isInitialLoading =
+                  state.status == QuotesStatus.loading && !state.isRefreshing;
+              return RefreshIndicator(
+                onRefresh: () async {
+                  final bloc = context.read<QuotesBloc>();
+                  bloc.add(const QuotesRefreshRequested());
+                  await bloc.stream.firstWhere((s) => !s.isRefreshing);
                 },
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  children: [
-                    if (isInitialLoading)
-                      ..._buildHomeLoadingChildren(context)
-                    else ...[
-                      _buildQuoteOfTheDayCard(context, state),
-                      const SizedBox(height: 20),
-                      _buildSearchBar(context),
-                      const SizedBox(height: 12),
-                      _buildCategoryChips(context, state),
-                      const SizedBox(height: 16),
-                    ],
-                    if (!isInitialLoading &&
-                        state.status == QuotesStatus.failure) ...[
-                      Center(
-                        child: Text(
-                          AppStrings.unableToLoadQuotes,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification.metrics.pixels >=
+                        notification.metrics.maxScrollExtent - 320) {
+                      context.read<QuotesBloc>().add(
+                        const QuotesLoadMoreRequested(),
+                      );
+                    }
+                    return false;
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    children: [
+                      if (isInitialLoading)
+                        ..._buildHomeLoadingChildren(context)
+                      else ...[
+                        _buildQuoteOfTheDayCard(context, state),
+                        const SizedBox(height: 20),
+                        _buildSearchBar(context),
+                        const SizedBox(height: 12),
+                        _buildCategoryChips(context, state),
+                        const SizedBox(height: 16),
+                      ],
+                      if (!isInitialLoading &&
+                          state.status == QuotesStatus.failure) ...[
+                        Center(
+                          child: Text(
+                            AppStrings.unableToLoadQuotes,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (!isInitialLoading &&
-                        state.status == QuotesStatus.success &&
-                        state.quotes.isEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: 32),
-                        child: Center(
+                        const SizedBox(height: 16),
+                      ],
+                      if (!isInitialLoading &&
+                          state.status == QuotesStatus.success &&
+                          state.quotes.isEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: 32),
+                          child: Center(
+                            child: Text(
+                              AppStrings.noQuotesMatchSearch,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (!isInitialLoading &&
+                          state.status == QuotesStatus.success &&
+                          state.quotes.isNotEmpty)
+                        ...state.quotes.map((quote) {
+                          final isFavorite = state.favoriteQuoteIds.contains(
+                            quote.id,
+                          );
+                          return QuoteCard(
+                            key: ValueKey('quote_${quote.id}_$isFavorite'),
+                            quote: quote,
+                            isFavorite: isFavorite,
+                            onFavoriteToggle: () {
+                              final currentIsFavorite = context
+                                  .read<QuotesBloc>()
+                                  .state
+                                  .favoriteQuoteIds
+                                  .contains(quote.id);
+                              final willBeFavorite = !currentIsFavorite;
+                              context.read<QuotesBloc>().add(
+                                QuotesFavoriteToggled(
+                                  quoteId: quote.id,
+                                  shouldAdd: willBeFavorite,
+                                ),
+                              );
+                            },
+                          );
+                        }),
+                      if (state.isLoadingMore) ...[
+                        const SizedBox(height: 12),
+                        const Center(child: CircularProgressIndicator()),
+                        const SizedBox(height: 16),
+                      ] else if (!state.hasMore &&
+                          state.status == QuotesStatus.success &&
+                          state.quotes.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Center(
                           child: Text(
-                            AppStrings.noQuotesMatchSearch,
+                            'You reached the end.',
                             style: TextStyle(
                               color: Theme.of(
                                 context,
@@ -321,59 +451,14 @@ class QuotesListPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
-                    if (!isInitialLoading &&
-                        state.status == QuotesStatus.success &&
-                        state.quotes.isNotEmpty)
-                      ...state.quotes.map((quote) {
-                        final isFavorite = state.favoriteQuoteIds.contains(
-                          quote.id,
-                        );
-                        return QuoteCard(
-                          key: ValueKey('quote_${quote.id}_$isFavorite'),
-                          quote: quote,
-                          isFavorite: isFavorite,
-                          onFavoriteToggle: () {
-                            final currentIsFavorite = context
-                                .read<QuotesBloc>()
-                                .state
-                                .favoriteQuoteIds
-                                .contains(quote.id);
-                            final willBeFavorite = !currentIsFavorite;
-                            context.read<QuotesBloc>().add(
-                              QuotesFavoriteToggled(
-                                quoteId: quote.id,
-                                shouldAdd: willBeFavorite,
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                    if (state.isLoadingMore) ...[
-                      const SizedBox(height: 12),
-                      const Center(child: CircularProgressIndicator()),
-                      const SizedBox(height: 16),
-                    ] else if (!state.hasMore &&
-                        state.status == QuotesStatus.success &&
-                        state.quotes.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Center(
-                        child: Text(
-                          'You reached the end.',
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

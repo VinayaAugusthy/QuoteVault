@@ -19,4 +19,7 @@ class RouteConstants {
 
   // Settings routes
   static const String settings = '/settings';
+
+  // Profile routes
+  static const String profile = '/profile';
 }

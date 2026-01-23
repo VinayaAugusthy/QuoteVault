@@ -42,3 +42,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Daily AppWidget refresh.
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+}

@@ -58,6 +58,7 @@ class DeepLinkService {
       } else {
         _handleInvalidResetLink();
       }
+      return;
     }
   }
 
@@ -143,7 +144,7 @@ class DeepLinkService {
           );
           Future.delayed(_errorDelay, () {
             final errorContext = _navigatorKey?.currentState?.context;
-            if (errorContext != null) {
+            if (errorContext != null && errorContext.mounted) {
               SnackbarUtils.showError(errorContext, errorMessage);
             }
           });
