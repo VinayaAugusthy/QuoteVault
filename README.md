@@ -14,7 +14,7 @@ A Flutter quotes app backed by Supabase (auth + storage) with favorites, collect
 - **Clone the repository**
 
 ```bash
-git clone <YOUR_REPO_URL>
+git clone https://github.com/VinayaAugusthy/QuoteVault.git
 cd quote_vault
 ```
 
